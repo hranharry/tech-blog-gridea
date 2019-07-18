@@ -1,0 +1,297 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ionic3 | Gridea</title>
+<meta name="description" content="温故而知新" />
+<link rel="shortcut icon" href="http://blog.te.6foo.cn/favicon.ico?v=1563427732614">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="http://blog.te.6foo.cn/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="http://blog.te.6foo.cn">
+  <img class="avatar" src="http://blog.te.6foo.cn/images/avatar.png?v=1563427732614" alt="">
+  </a>
+  <h1 class="site-title">
+    Gridea
+  </h1>
+  <p class="site-description">
+    温故而知新
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="http://blog.te.6foo.cn" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="http://blog.te.6foo.cn/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="http://blog.te.6foo.cn/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="http://blog.te.6foo.cn/post/about/" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Ionic3
+            </h2>
+            <div class="post-info">
+              <span>
+                2019-07-18
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="ionic3开发">Ionic3开发</h1>
+<h2 id="项目文件放在www文件夹下">项目文件放在www文件夹下</h2>
+<h2 id="template中的静态文件引用要从www内部开始算如www下的img-则img不能开头">template中的静态文件引用要从www内部开始算，如www下的img 则'img/'，不能/开头</h2>
+<h2 id="0x00-ionic3-打包">0x00 ionic3 打包</h2>
+<ol>
+<li><code>onic build andriod/ios</code> 编译的包是含有签名的</li>
+<li>加上<code>--release</code> 包不含签名</li>
+<li>加上<code>--prod</code> 包资源压缩 有效缩小包体积 减少启动白屏时间</li>
+<li>发布<code>ionic cordova build browser</code>后浏览器包screen错误
+<blockquote>
+<p>解决方法： <code>config.xml</code>里的<code>splashScreen</code> 改为绝对路径，定义<code>splashScreenWidth</code>和<code>splashScreenHeight</code>的值</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="0x01-ionic3-报错排查">0x01 ionic3 报错排查</h2>
+<ol>
+<li>
+<p><code>Connection is not defined</code></p>
+<blockquote>
+<p>可能是缺少获取网络状态的Cordoba包，使用命令 cordova plugin add org.apache.cordova.network-information 安装</p>
+</blockquote>
+</li>
+<li>
+<p><code>because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.</code></p>
+<blockquote>
+<p>可能是因为路径问题，返回的是404，不一定是文件类型错误</p>
+</blockquote>
+</li>
+<li>
+<p><code>queryelement of null</code></p>
+<blockquote>
+<p>有可能和tab toolbar heder有关（忘记这是个什么问题了）</p>
+</blockquote>
+</li>
+<li>
+<p>同时引用两个toolbar，content会不排除header高度，造成遮盖（这个问题也不确定是不是这么描述）</p>
+</li>
+<li>
+<p>viewChild获取不到子元素问题</p>
+<ul>
+<li>方法1</li>
+</ul>
+<blockquote>
+<p>子元素上应用了ngIf 会导致</p>
+</blockquote>
+<ul>
+<li>方法2</li>
+</ul>
+<blockquote>
+<p>改用viewChildren 来获取所有子元素（该方法未测试）</p>
+</blockquote>
+</li>
+<li>
+<p>组件内部使用ngDoCheck并调用interval计时器，可能会导致页面内存泄露，造成页面卡死</p>
+</li>
+</ol>
+<h2 id="0x02-ionic3-特殊事件类型">0x02 ionic3 特殊事件类型</h2>
+<ol>
+<li>ionic3 press表示长按事件</li>
+</ol>
+<h2 id="0x03-ionic3-插件注意事项">0x03 ionic3 插件注意事项</h2>
+<ol>
+<li>
+<p>调用原生拍照后转base64， 需要注意现在相机分辨率高，最好是先用<code>resizer</code>插件压缩一下，否则可能会失败。</p>
+</li>
+<li>
+<p><code>backgroundMode</code>在<code>Android 8</code>下不生效，报错<code>bad notification...</code></p>
+<blockquote>
+<p>解决方法： 用命令<code>ionic cordova platforms remove android</code>删除<code>platform</code>里的<code>android</code>， 重新用<code>ionic cordova platforms add android@7.0.0</code> <a href="https://github.com/katzer/cordova-plugin-background-mode/issues/411">参考链接</a></p>
+</blockquote>
+</li>
+</ol>
+<h2 id="0x04-ionic3-请求拦截器-httpclient-请求体">0x04 ionic3 请求拦截器 HttpClient 请求体</h2>
+<ol>
+<li>在拦截器中获取<code>req.headers</code>里设定的自定义变量 使用<code>req.headers.get</code></li>
+</ol>
+<pre><code>intercept(req, next: HttpHandler){
+    // 用req.headers.key取不到值
+    let hadBaseurl = req.headers.get('hadBaseurl);
+    // 用`req.paramas.key`取不到值
+    let hastoken = req.params.get('hastoken');
+}
+</code></pre>
+<ol start="2">
+<li>在请求体中设置<code>req.headers</code>的自定义变量 使用<code>req.headers.set</code></li>
+</ol>
+<pre><code>intercept(req, next: HttpHandler){
+   let newReq = req.clone({
+     url: req.url
+   })
+   // 此处设置额外的头部，token之类
+   newReq.headers = newReq.headers.set('Token', 'daflj3lklkdacjlk')
+} 
+</code></pre>
+<ol start="3">
+<li>在请求体中删除<code>req.headers</code>的变量 使用<code>req.headers.delete</code> <strong>生成的新值赋值给newReq</strong></li>
+</ol>
+<pre><code>intercept(req, next: HttpHandler){
+   let newReq = req.clone({
+     url: req.url
+   })
+   // 此处设置额外的头部，token之类
+   newReq.headers = newReq.headers.delete('hadBaseurl')
+   newReq.headers = newReq.headers.delete('uploadType')
+} 
+</code></pre>
+<ol start="4">
+<li>form表单方式上传文件的<code>content-type</code>应该是<code>multipart/form-data</code></li>
+</ol>
+<pre><code>intercept(req, next: HttpHandler) {
+  // 非上传文件的content-type
+  if (!req.headers.get('uploadType')){
+    newReq.headers = newReq.headers.set('Content-Type', 'application/json')
+  }
+  // 上传文件content-type 默认的应该是multipart/form-data ，否则丢失boundary参数 无法解析formdata
+}
+</code></pre>
+<h2 id="0x05-angular4-的pipe管道-如果要使用es6的promise语法需要asyncpipe异步管道">0x05 Angular4 的Pipe管道 如果要使用es6的Promise语法需要asyncPipe异步管道</h2>
+<pre><code>&lt;img [src]=&quot;item | fileToBase64 | async&quot; alt=&quot;&quot;&gt;
+加了 `| async` fileToBase64就可以使用promise/observable
+</code></pre>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#ionic3%E5%BC%80%E5%8F%91">Ionic3开发</a>
+<ul>
+<li><a href="#%E9%A1%B9%E7%9B%AE%E6%96%87%E4%BB%B6%E6%94%BE%E5%9C%A8www%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%8B">项目文件放在www文件夹下</a></li>
+<li><a href="#template%E4%B8%AD%E7%9A%84%E9%9D%99%E6%80%81%E6%96%87%E4%BB%B6%E5%BC%95%E7%94%A8%E8%A6%81%E4%BB%8Ewww%E5%86%85%E9%83%A8%E5%BC%80%E5%A7%8B%E7%AE%97%E5%A6%82www%E4%B8%8B%E7%9A%84img-%E5%88%99img%E4%B8%8D%E8%83%BD%E5%BC%80%E5%A4%B4">template中的静态文件引用要从www内部开始算，如www下的img 则'img/'，不能/开头</a></li>
+<li><a href="#0x00-ionic3-%E6%89%93%E5%8C%85">0x00 ionic3 打包</a></li>
+<li><a href="#0x01-ionic3-%E6%8A%A5%E9%94%99%E6%8E%92%E6%9F%A5">0x01 ionic3 报错排查</a></li>
+<li><a href="#0x02-ionic3-%E7%89%B9%E6%AE%8A%E4%BA%8B%E4%BB%B6%E7%B1%BB%E5%9E%8B">0x02 ionic3 特殊事件类型</a></li>
+<li><a href="#0x03-ionic3-%E6%8F%92%E4%BB%B6%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">0x03 ionic3 插件注意事项</a></li>
+<li><a href="#0x04-ionic3-%E8%AF%B7%E6%B1%82%E6%8B%A6%E6%88%AA%E5%99%A8-httpclient-%E8%AF%B7%E6%B1%82%E4%BD%93">0x04 ionic3 请求拦截器 HttpClient 请求体</a></li>
+<li><a href="#0x05-angular4-%E7%9A%84pipe%E7%AE%A1%E9%81%93-%E5%A6%82%E6%9E%9C%E8%A6%81%E4%BD%BF%E7%94%A8es6%E7%9A%84promise%E8%AF%AD%E6%B3%95%E9%9C%80%E8%A6%81asyncpipe%E5%BC%82%E6%AD%A5%E7%AE%A1%E9%81%93">0x05 Angular4 的Pipe管道 如果要使用es6的Promise语法需要asyncPipe异步管道</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="http://blog.te.6foo.cn/post/hybird">
+              <h3 class="post-title">
+                Hybird
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="http://blog.te.6foo.cn/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
+
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
+
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      console.log('section.offsetHeight', section.offsetHeight);
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
+
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

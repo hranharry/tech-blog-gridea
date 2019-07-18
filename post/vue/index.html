@@ -1,0 +1,317 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VUE | Gridea</title>
+<meta name="description" content="温故而知新" />
+<link rel="shortcut icon" href="http://blog.te.6foo.cn/favicon.ico?v=1563427732614">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="http://blog.te.6foo.cn/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="http://blog.te.6foo.cn">
+  <img class="avatar" src="http://blog.te.6foo.cn/images/avatar.png?v=1563427732614" alt="">
+  </a>
+  <h1 class="site-title">
+    Gridea
+  </h1>
+  <p class="site-description">
+    温故而知新
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="http://blog.te.6foo.cn" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="http://blog.te.6foo.cn/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="http://blog.te.6foo.cn/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="http://blog.te.6foo.cn/post/about/" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              VUE
+            </h2>
+            <div class="post-info">
+              <span>
+                2019-07-18
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="vue">vue</h1>
+<ol>
+<li>
+<p>mixin导入js中的变量方法的监听 <code>要在mixin载入点文件中通过watch来监听</code></p>
+</li>
+<li>
+<p>vue中的修饰符</p>
+</li>
+</ol>
+<pre><code>.prevent 阻止 touchmove 冒泡
+</code></pre>
+<ol start="3">
+<li>弹出页面滑动操作影响父级页面滚动 <code>通过js阻止滚动事件冒泡</code> 解决；<br>
+<strong>录音上滑取消可以此实现</strong></li>
+</ol>
+<pre><code>在vue中`.prevent`修饰符可以阻止`touchmove`冒泡实现遮罩阻止滑动 
+.stop 阻止 click 冒泡
+</code></pre>
+<ol start="4">
+<li>
+<p>vue组件中也能传入Function，可执行传入操作（比如关闭蒙版后执行某操作）</p>
+</li>
+<li>
+<p><code>template</code>中的变量如果需要经过函数处理的，如果处理函数中有<code>循环</code>，vue可能会不停渲染，造成页面卡死</p>
+</li>
+</ol>
+<h1 id="router">router</h1>
+<ol>
+<li>vue路由按返回键来回跳的，可以是适当用<code>router.replace</code>进行路由跳转，<code>replace</code>表示替换当前<code>history</code>栈，类似与redirect;通常用的<code>router.push</code>是增加history栈</li>
+</ol>
+<h1 id="axios">axios</h1>
+<ol>
+<li>axios中执行formdata方式上传文件（不确定是不是在拦截器中写法有问题）</li>
+</ol>
+<pre><code>要用Axios.post方法去设置params和头，拦截器中无法修改content-type
+Axios.post(
+`http://${host}/appapi/api/MyCaseInfo/UploadFile`,
+params,
+  {
+    'Content-Type': 'multipart/form-data'
+  }
+)
+</code></pre>
+<h1 id="vant">vant</h1>
+<h2 id="0x00-van-list-组件-下拉刷新-上拉加载">0x00 van-list 组件 下拉刷新 上拉加载</h2>
+<blockquote>
+<p>如果列表的<code>height</code>小于<code>100vh</code>，会造成下拉刷新<code>pull refresh</code>和上拉加载<code>load</code>同时触发造成数据重复；定义全局变量pageIndex，获取数据的同时pageIndex++ 这样<code>load</code>的时候<code>pageIndex</code>是2，不会数据冗余</p>
+</blockquote>
+<h1 id="vue中的h5特性标签">vue中的H5特性标签</h1>
+<h2 id="0x00-页面中需要加载多个音频">0x00 页面中需要加载多个音频</h2>
+<ol>
+<li>方式一（无完善demo）</li>
+</ol>
+<ul>
+<li><code>data</code>中定义<code>音频文件链接</code>数组，创建单个公用<code>audio</code>标签，点击音频数组时对<code>audio</code>进行赋值，监听到音频<code>loaded</code>后，执行播放<code>play()</code></li>
+<li>注意点：<strong>audio会直接load（就算src为空），更换src不自动reload，所以audio放进一个弹框，每次变更进行销毁</strong></li>
+</ul>
+<ol start="2">
+<li>方式二（honeywell/CasemanageAPP）</li>
+</ol>
+<ul>
+<li>
+<p>页面同时渲染多个<code>audio</code></p>
+<pre><code>&lt;div @click=&quot;togglePlay&quot;&gt;
+  &lt;audio :id=&quot;'audio'+ index&quot; :src=&quot;voice[urlKey]&quot; @pause=&quot;onPause&quot; @loadedmetadata=&quot;onLoadedmetadata($event, index)&quot;&gt;&lt;/audio&gt;
+&lt;/div&gt;
+&lt;script&gt;
+  togglePlay (index) {
+    if (index === this.currentVoice &amp;&amp; this.playFlag) {
+      this.currentVoiceEl.pause()
+      this.currentVoice = null
+      this.playFlag = false
+    } else if (!this.playFlag || index !== this.currentVoice) {
+      if (this.currentVoiceEl) {
+        this.currentVoiceEl.pause()
+        this.currentVoice = null
+        this.playFlag = false
+      }
+      &lt;!-- 上一个的停止可能在下一个音频加载前面，只有settimeout能处理音频加载和停止的异步问题 --&gt;
+      setTimeout(() =&gt; {
+        this.currentVoice = index
+        this.currentVoiceEl = document.getElementById('audio' + index)
+        this.currentVoiceEl.play()
+        this.playFlag = true
+      }, 0);
+    }
+  }
+&lt;/script&gt;
+</code></pre>
+</li>
+</ul>
+<h1 id="微信开发">微信开发</h1>
+<ol>
+<li>使用history模式路由，跳转到<code>相同路径</code>只改变<code>地址栏参数</code>，页面不刷新问题</li>
+</ol>
+<ul>
+<li>方法一
+<blockquote>
+<p><s>通过中间页的beforeRouterEnter跳回。但是在ios下有问题，地址栏内容不改变，分享有问题。</s></p>
+</blockquote>
+</li>
+<li>方法二
+<blockquote>
+<p>这个时候就应该用window.location.href进行强制跳转  才能保证跳转</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="webview配置">webview配置</h1>
+<h2 id="0x00-vue项目白屏">0x00 vue项目白屏</h2>
+<ol>
+<li>防止页面缓存</li>
+</ol>
+<ul>
+<li>增加 webSettings.setCacheMode(WebSettings.<code>LOAD_NO_CACHE</code>);</li>
+</ul>
+<ol start="2">
+<li>防止静态文件路径错误</li>
+</ol>
+<blockquote>
+<p>webpack打包的vue项目默认是在根目录的纯前端项目，引入到webview中之后，实际的地址路径其实包含了前置路径，Andorid：android-assets/目录名/ 这时绝对路径就404了</p>
+</blockquote>
+<ul>
+<li>webpack 4 + vue-cli3
+<ul>
+<li>新建vue.config.js文件 <a href="/default/vue.config.js">模板文件</a></li>
+<li>修改baseUrl为<code>'./'</code>表示相对路径</li>
+</ul>
+</li>
+<li>webpack 4 + vue-cli2
+<ul>
+<li>修改 config/index.js 中的 assetsPublicPath为<code>'./'</code>(该条未测)</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#vue">vue</a></li>
+<li><a href="#router">router</a></li>
+<li><a href="#axios">axios</a></li>
+<li><a href="#vant">vant</a>
+<ul>
+<li><a href="#0x00-van-list-%E7%BB%84%E4%BB%B6-%E4%B8%8B%E6%8B%89%E5%88%B7%E6%96%B0-%E4%B8%8A%E6%8B%89%E5%8A%A0%E8%BD%BD">0x00 van-list 组件 下拉刷新 上拉加载</a></li>
+</ul>
+</li>
+<li><a href="#vue%E4%B8%AD%E7%9A%84h5%E7%89%B9%E6%80%A7%E6%A0%87%E7%AD%BE">vue中的H5特性标签</a>
+<ul>
+<li><a href="#0x00-%E9%A1%B5%E9%9D%A2%E4%B8%AD%E9%9C%80%E8%A6%81%E5%8A%A0%E8%BD%BD%E5%A4%9A%E4%B8%AA%E9%9F%B3%E9%A2%91">0x00 页面中需要加载多个音频</a></li>
+</ul>
+</li>
+<li><a href="#%E5%BE%AE%E4%BF%A1%E5%BC%80%E5%8F%91">微信开发</a></li>
+<li><a href="#webview%E9%85%8D%E7%BD%AE">webview配置</a>
+<ul>
+<li><a href="#0x00-vue%E9%A1%B9%E7%9B%AE%E7%99%BD%E5%B1%8F">0x00 vue项目白屏</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="http://blog.te.6foo.cn/post/react">
+              <h3 class="post-title">
+                React
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="http://blog.te.6foo.cn/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
+
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
+
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      console.log('section.offsetHeight', section.offsetHeight);
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
+
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

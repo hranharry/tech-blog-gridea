@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>H5+CSS3+JS | Gridea</title>
+<title>React | Gridea</title>
 <meta name="description" content="温故而知新" />
 <link rel="shortcut icon" href="http://blog.te.6foo.cn/favicon.ico?v=1563427732614">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,7 +73,7 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              H5+CSS3+JS
+              React
             </h2>
             <div class="post-info">
               <span>
@@ -87,74 +87,95 @@
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <h1 id="h5">H5</h1>
-<ol>
-<li>页面嵌入iframe会页面闪烁 <code>iframe上增加frameborder = 0</code> 解决</li>
-<li>页面中body 加上<code>onselectstart=&quot;return false;&quot;</code>可以去除用户复制能力</li>
-</ol>
-<h1 id="css3">CSS3</h1>
-<h2 id="css3新特性技巧">CSS3新特性技巧</h2>
+                <h1 id="react直接引入方式">react直接引入方式</h1>
+<h2 id="0x00-基本">0x00 基本</h2>
 <ol>
 <li>
-<p>flex多行多列布局，自动换行</p>
+<p>引入<code>react/react-dom/babel/babel-polyfill</code>，解决IE兼容问题</p>
+</li>
+<li>
+<p>script标签中<code>jsx</code>的type是<code>text/babel</code></p>
+</li>
+</ol>
+<h2 id="0x01-区分jsx文件创建组件">0x01 区分jsx文件创建组件</h2>
+<ol>
+<li>
+<p>引入全局变量绑定组件</p>
+</li>
+<li>
+<p>通过js动态循环地址插入body中</p>
+</li>
+</ol>
+<pre><code>var mail = {};
+var mailComponent = {};
+var cssPathList = [
+  'src/common.css',
+  'src/component/hon-title.css',
+  'src/component/hon-body.css',
+  'src/component/add-mail-main.css',
+  'src/component/add-mail-box.css',
+  'src/component/add-mail-checklist.css',
+  'src/component/add-mail-choosetab.css',
+];
+for(var i = 0; i &lt; cssPathList.length; i++){
+  var css = document.createElement(&quot;link&quot;);
+  css.rel=&quot;stylesheet&quot;;
+  css.href = cssPathList[i];
+  document.head.appendChild(css);
+}
+var jsPathList = [
+  'src/component/add-mail-main.jsx',
+  'src/component/hon-title.jsx',
+  'src/component/hon-body.jsx',
+  'src/component/add-mail-box.jsx',
+  'src/component/add-mail-checklist.jsx',
+  'src/component/add-mail-choosetab.jsx',
+  'src/component/add-mail-radiogroup.jsx',
+  'src/component/add-mail-input.jsx',
+  'src/index.jsx'
+]
+for (var i = 0 ; i &lt; jsPathList.length ; i++) {
+  var script = document.createElement(&quot;script&quot;);
+  script.type = &quot;text/babel&quot;;
+  script.src = jsPathList[i];
+  document.body.appendChild(script);
+}
+</code></pre>
+<h2 id="0x02-vscode编辑器设置">0x02 VSCODE编辑器设置</h2>
+<ol>
+<li>在jsx文件中使用<code>emmet</code>，使用tab生成标签</li>
+</ol>
+<pre><code>&quot;emmet.syntaxProfiles&quot;: {
+    &quot;javascript&quot;: &quot;jsx&quot;
+},
+&quot;emmet.includeLanguages&quot;: {
+    &quot;javascript&quot;: &quot;javascriptreact&quot;
+}
+</code></pre>
+<ol start="2">
+<li>插件babel javascript -michael有问题, 会导致html里script标签高亮错误</li>
+<li>插件 Full React 较好</li>
+</ol>
+<h2 id="直接引入方式的问题排查">直接引入方式的问题排查</h2>
+<ol>
+<li><code>index.html</code>中的<code>reactDom.render</code>是更组件，其中的props如果是变量，直接修改变量更新不会生效。</li>
+</ol>
+<blockquote>
 <ul>
-<li>flex-flow: row wrap; 容器加上这个属性，元素再设定宽度</li>
-<li>box-sizing: border-box 使padding不影响最终宽度</li>
-<li>图片超出宽度，内容居中可以用flex，column布局，justcontent和alignitems设置为center（未测试，根据文字如果要居中两头截断猜测）</li>
+<li>异步请求需要传入props的实现方式</li>
+<li>异步成功回调中书写reactDom.render内容，此时组件内componentWillReceiveProps(nextProps)，能获得更新的props</li>
 </ul>
-</li>
-</ol>
-<h2 id="ie浏览器适配">IE浏览器适配</h2>
-<ol>
-<li>
-<p>IE浏览器中的<code>zoom</code>属性, 会将所有的边距<code>right left top bottom margin padding</code>不进行缩放，元素缩放后，占位还是<code>zoom： 1</code>，显示内容只占据占位区域的左上角位置。造成与chrome不统一的问题</p>
-</li>
-<li>
-<p>ie中inline-block不对其：<code>字体设置成微软雅黑</code></p>
-</li>
-<li>
-<p>ie中不兼容不标准的时间字符串，要用<code>yyyy/mm/dd hh:mm:ss</code> 并且hh不能大于24小时，月份不能大于12之类</p>
-<ul>
-<li>echats 使用了时间出现兼容问题可以考虑这一点</li>
-</ul>
-</li>
-</ol>
-<h1 id="js">JS</h1>
-<ol>
-<li>
-<p>document初始化时通过on绑定到元素上的事件，在元素重新生成时会销毁，需要重新绑定事件</p>
-</li>
-<li>
-<p>因为浏览器安全策略问题，<code>input[type=file]</code>不能通过js获取文件进行上传，需要将文件转blob，通过ajax进行上传</p>
-</li>
-</ol>
-<h1 id="jquery">JQuery</h1>
-<ol>
-<li><code>JQuery-editable-select</code>插件，直接清空<code>select</code>的<code>val</code>可以清空值，但是选项列表保留了筛选过的状态，需要手动还原。<code>$().next('.es-list')</code>获取到下级<code>ul</code>用<code>.removeClass,addClass,removeAttr('style')</code>修正</li>
-</ol>
-<h1 id="通过bower包管理器引入的文件">通过bower包管理器引入的文件</h1>
-<h2 id="整体使用方式类似npm">整体使用方式类似npm</h2>
-<ol>
-<li><code>bower init</code>创建管理文件</li>
-<li><code>bower install xxx --save</code> 安装插件并保存到管理文件中</li>
-<li><code>bower install</code> 安装管理文件里所有的包</li>
-</ol>
+</blockquote>
 
               </div>
               <div class="toc-container">
                 <ul class="markdownIt-TOC">
-<li><a href="#h5">H5</a></li>
-<li><a href="#css3">CSS3</a>
+<li><a href="#react%E7%9B%B4%E6%8E%A5%E5%BC%95%E5%85%A5%E6%96%B9%E5%BC%8F">react直接引入方式</a>
 <ul>
-<li><a href="#css3%E6%96%B0%E7%89%B9%E6%80%A7%E6%8A%80%E5%B7%A7">CSS3新特性技巧</a></li>
-<li><a href="#ie%E6%B5%8F%E8%A7%88%E5%99%A8%E9%80%82%E9%85%8D">IE浏览器适配</a></li>
-</ul>
-</li>
-<li><a href="#js">JS</a></li>
-<li><a href="#jquery">JQuery</a></li>
-<li><a href="#%E9%80%9A%E8%BF%87bower%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8%E5%BC%95%E5%85%A5%E7%9A%84%E6%96%87%E4%BB%B6">通过bower包管理器引入的文件</a>
-<ul>
-<li><a href="#%E6%95%B4%E4%BD%93%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%E7%B1%BB%E4%BC%BCnpm">整体使用方式类似npm</a></li>
+<li><a href="#0x00-%E5%9F%BA%E6%9C%AC">0x00 基本</a></li>
+<li><a href="#0x01-%E5%8C%BA%E5%88%86jsx%E6%96%87%E4%BB%B6%E5%88%9B%E5%BB%BA%E7%BB%84%E4%BB%B6">0x01 区分jsx文件创建组件</a></li>
+<li><a href="#0x02-vscode%E7%BC%96%E8%BE%91%E5%99%A8%E8%AE%BE%E7%BD%AE">0x02 VSCODE编辑器设置</a></li>
+<li><a href="#%E7%9B%B4%E6%8E%A5%E5%BC%95%E5%85%A5%E6%96%B9%E5%BC%8F%E7%9A%84%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5">直接引入方式的问题排查</a></li>
 </ul>
 </li>
 </ul>
@@ -167,9 +188,9 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="http://blog.te.6foo.cn/post/hello-gridea">
+            <a href="http://blog.te.6foo.cn/post/ionic3">
               <h3 class="post-title">
-                Hello Gridea
+                Ionic3
               </h3>
             </a>
           </div>

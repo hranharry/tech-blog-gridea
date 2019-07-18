@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>http://blog.te.6foo.cn</id>
     <title>Gridea</title>
-    <updated>2019-07-18T05:12:15.713Z</updated>
+    <updated>2019-07-18T05:28:54.861Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="http://blog.te.6foo.cn"/>
     <link rel="self" href="http://blog.te.6foo.cn/atom.xml"/>
@@ -10,6 +10,423 @@
     <logo>http://blog.te.6foo.cn/images/avatar.png</logo>
     <icon>http://blog.te.6foo.cn/favicon.ico</icon>
     <rights>All rights reserved 2019, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[VUE]]></title>
+        <id>http://blog.te.6foo.cn/post/vue</id>
+        <link href="http://blog.te.6foo.cn/post/vue">
+        </link>
+        <updated>2019-07-18T05:28:47.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="vue">vue</h1>
+<ol>
+<li>
+<p>mixin导入js中的变量方法的监听 <code>要在mixin载入点文件中通过watch来监听</code></p>
+</li>
+<li>
+<p>vue中的修饰符</p>
+</li>
+</ol>
+<pre><code>.prevent 阻止 touchmove 冒泡
+</code></pre>
+<ol start="3">
+<li>弹出页面滑动操作影响父级页面滚动 <code>通过js阻止滚动事件冒泡</code> 解决；<br>
+<strong>录音上滑取消可以此实现</strong></li>
+</ol>
+<pre><code>在vue中`.prevent`修饰符可以阻止`touchmove`冒泡实现遮罩阻止滑动 
+.stop 阻止 click 冒泡
+</code></pre>
+<ol start="4">
+<li>
+<p>vue组件中也能传入Function，可执行传入操作（比如关闭蒙版后执行某操作）</p>
+</li>
+<li>
+<p><code>template</code>中的变量如果需要经过函数处理的，如果处理函数中有<code>循环</code>，vue可能会不停渲染，造成页面卡死</p>
+</li>
+</ol>
+<h1 id="router">router</h1>
+<ol>
+<li>vue路由按返回键来回跳的，可以是适当用<code>router.replace</code>进行路由跳转，<code>replace</code>表示替换当前<code>history</code>栈，类似与redirect;通常用的<code>router.push</code>是增加history栈</li>
+</ol>
+<h1 id="axios">axios</h1>
+<ol>
+<li>axios中执行formdata方式上传文件（不确定是不是在拦截器中写法有问题）</li>
+</ol>
+<pre><code>要用Axios.post方法去设置params和头，拦截器中无法修改content-type
+Axios.post(
+`http://${host}/appapi/api/MyCaseInfo/UploadFile`,
+params,
+  {
+    'Content-Type': 'multipart/form-data'
+  }
+)
+</code></pre>
+<h1 id="vant">vant</h1>
+<h2 id="0x00-van-list-组件-下拉刷新-上拉加载">0x00 van-list 组件 下拉刷新 上拉加载</h2>
+<blockquote>
+<p>如果列表的<code>height</code>小于<code>100vh</code>，会造成下拉刷新<code>pull refresh</code>和上拉加载<code>load</code>同时触发造成数据重复；定义全局变量pageIndex，获取数据的同时pageIndex++ 这样<code>load</code>的时候<code>pageIndex</code>是2，不会数据冗余</p>
+</blockquote>
+<h1 id="vue中的h5特性标签">vue中的H5特性标签</h1>
+<h2 id="0x00-页面中需要加载多个音频">0x00 页面中需要加载多个音频</h2>
+<ol>
+<li>方式一（无完善demo）</li>
+</ol>
+<ul>
+<li><code>data</code>中定义<code>音频文件链接</code>数组，创建单个公用<code>audio</code>标签，点击音频数组时对<code>audio</code>进行赋值，监听到音频<code>loaded</code>后，执行播放<code>play()</code></li>
+<li>注意点：<strong>audio会直接load（就算src为空），更换src不自动reload，所以audio放进一个弹框，每次变更进行销毁</strong></li>
+</ul>
+<ol start="2">
+<li>方式二（honeywell/CasemanageAPP）</li>
+</ol>
+<ul>
+<li>
+<p>页面同时渲染多个<code>audio</code></p>
+<pre><code>&lt;div @click=&quot;togglePlay&quot;&gt;
+  &lt;audio :id=&quot;'audio'+ index&quot; :src=&quot;voice[urlKey]&quot; @pause=&quot;onPause&quot; @loadedmetadata=&quot;onLoadedmetadata($event, index)&quot;&gt;&lt;/audio&gt;
+&lt;/div&gt;
+&lt;script&gt;
+  togglePlay (index) {
+    if (index === this.currentVoice &amp;&amp; this.playFlag) {
+      this.currentVoiceEl.pause()
+      this.currentVoice = null
+      this.playFlag = false
+    } else if (!this.playFlag || index !== this.currentVoice) {
+      if (this.currentVoiceEl) {
+        this.currentVoiceEl.pause()
+        this.currentVoice = null
+        this.playFlag = false
+      }
+      &lt;!-- 上一个的停止可能在下一个音频加载前面，只有settimeout能处理音频加载和停止的异步问题 --&gt;
+      setTimeout(() =&gt; {
+        this.currentVoice = index
+        this.currentVoiceEl = document.getElementById('audio' + index)
+        this.currentVoiceEl.play()
+        this.playFlag = true
+      }, 0);
+    }
+  }
+&lt;/script&gt;
+</code></pre>
+</li>
+</ul>
+<h1 id="微信开发">微信开发</h1>
+<ol>
+<li>使用history模式路由，跳转到<code>相同路径</code>只改变<code>地址栏参数</code>，页面不刷新问题</li>
+</ol>
+<ul>
+<li>方法一
+<blockquote>
+<p><s>通过中间页的beforeRouterEnter跳回。但是在ios下有问题，地址栏内容不改变，分享有问题。</s></p>
+</blockquote>
+</li>
+<li>方法二
+<blockquote>
+<p>这个时候就应该用window.location.href进行强制跳转  才能保证跳转</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="webview配置">webview配置</h1>
+<h2 id="0x00-vue项目白屏">0x00 vue项目白屏</h2>
+<ol>
+<li>防止页面缓存</li>
+</ol>
+<ul>
+<li>增加 webSettings.setCacheMode(WebSettings.<code>LOAD_NO_CACHE</code>);</li>
+</ul>
+<ol start="2">
+<li>防止静态文件路径错误</li>
+</ol>
+<blockquote>
+<p>webpack打包的vue项目默认是在根目录的纯前端项目，引入到webview中之后，实际的地址路径其实包含了前置路径，Andorid：android-assets/目录名/ 这时绝对路径就404了</p>
+</blockquote>
+<ul>
+<li>webpack 4 + vue-cli3
+<ul>
+<li>新建vue.config.js文件 <a href="/default/vue.config.js">模板文件</a></li>
+<li>修改baseUrl为<code>'./'</code>表示相对路径</li>
+</ul>
+</li>
+<li>webpack 4 + vue-cli2
+<ul>
+<li>修改 config/index.js 中的 assetsPublicPath为<code>'./'</code>(该条未测)</li>
+</ul>
+</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[React]]></title>
+        <id>http://blog.te.6foo.cn/post/react</id>
+        <link href="http://blog.te.6foo.cn/post/react">
+        </link>
+        <updated>2019-07-18T05:28:28.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="react直接引入方式">react直接引入方式</h1>
+<h2 id="0x00-基本">0x00 基本</h2>
+<ol>
+<li>
+<p>引入<code>react/react-dom/babel/babel-polyfill</code>，解决IE兼容问题</p>
+</li>
+<li>
+<p>script标签中<code>jsx</code>的type是<code>text/babel</code></p>
+</li>
+</ol>
+<h2 id="0x01-区分jsx文件创建组件">0x01 区分jsx文件创建组件</h2>
+<ol>
+<li>
+<p>引入全局变量绑定组件</p>
+</li>
+<li>
+<p>通过js动态循环地址插入body中</p>
+</li>
+</ol>
+<pre><code>var mail = {};
+var mailComponent = {};
+var cssPathList = [
+  'src/common.css',
+  'src/component/hon-title.css',
+  'src/component/hon-body.css',
+  'src/component/add-mail-main.css',
+  'src/component/add-mail-box.css',
+  'src/component/add-mail-checklist.css',
+  'src/component/add-mail-choosetab.css',
+];
+for(var i = 0; i &lt; cssPathList.length; i++){
+  var css = document.createElement(&quot;link&quot;);
+  css.rel=&quot;stylesheet&quot;;
+  css.href = cssPathList[i];
+  document.head.appendChild(css);
+}
+var jsPathList = [
+  'src/component/add-mail-main.jsx',
+  'src/component/hon-title.jsx',
+  'src/component/hon-body.jsx',
+  'src/component/add-mail-box.jsx',
+  'src/component/add-mail-checklist.jsx',
+  'src/component/add-mail-choosetab.jsx',
+  'src/component/add-mail-radiogroup.jsx',
+  'src/component/add-mail-input.jsx',
+  'src/index.jsx'
+]
+for (var i = 0 ; i &lt; jsPathList.length ; i++) {
+  var script = document.createElement(&quot;script&quot;);
+  script.type = &quot;text/babel&quot;;
+  script.src = jsPathList[i];
+  document.body.appendChild(script);
+}
+</code></pre>
+<h2 id="0x02-vscode编辑器设置">0x02 VSCODE编辑器设置</h2>
+<ol>
+<li>在jsx文件中使用<code>emmet</code>，使用tab生成标签</li>
+</ol>
+<pre><code>&quot;emmet.syntaxProfiles&quot;: {
+    &quot;javascript&quot;: &quot;jsx&quot;
+},
+&quot;emmet.includeLanguages&quot;: {
+    &quot;javascript&quot;: &quot;javascriptreact&quot;
+}
+</code></pre>
+<ol start="2">
+<li>插件babel javascript -michael有问题, 会导致html里script标签高亮错误</li>
+<li>插件 Full React 较好</li>
+</ol>
+<h2 id="直接引入方式的问题排查">直接引入方式的问题排查</h2>
+<ol>
+<li><code>index.html</code>中的<code>reactDom.render</code>是更组件，其中的props如果是变量，直接修改变量更新不会生效。</li>
+</ol>
+<blockquote>
+<ul>
+<li>异步请求需要传入props的实现方式</li>
+<li>异步成功回调中书写reactDom.render内容，此时组件内componentWillReceiveProps(nextProps)，能获得更新的props</li>
+</ul>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Ionic3]]></title>
+        <id>http://blog.te.6foo.cn/post/ionic3</id>
+        <link href="http://blog.te.6foo.cn/post/ionic3">
+        </link>
+        <updated>2019-07-18T05:28:07.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="ionic3开发">Ionic3开发</h1>
+<h2 id="项目文件放在www文件夹下">项目文件放在www文件夹下</h2>
+<h2 id="template中的静态文件引用要从www内部开始算如www下的img-则img不能开头">template中的静态文件引用要从www内部开始算，如www下的img 则'img/'，不能/开头</h2>
+<h2 id="0x00-ionic3-打包">0x00 ionic3 打包</h2>
+<ol>
+<li><code>onic build andriod/ios</code> 编译的包是含有签名的</li>
+<li>加上<code>--release</code> 包不含签名</li>
+<li>加上<code>--prod</code> 包资源压缩 有效缩小包体积 减少启动白屏时间</li>
+<li>发布<code>ionic cordova build browser</code>后浏览器包screen错误
+<blockquote>
+<p>解决方法： <code>config.xml</code>里的<code>splashScreen</code> 改为绝对路径，定义<code>splashScreenWidth</code>和<code>splashScreenHeight</code>的值</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="0x01-ionic3-报错排查">0x01 ionic3 报错排查</h2>
+<ol>
+<li>
+<p><code>Connection is not defined</code></p>
+<blockquote>
+<p>可能是缺少获取网络状态的Cordoba包，使用命令 cordova plugin add org.apache.cordova.network-information 安装</p>
+</blockquote>
+</li>
+<li>
+<p><code>because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.</code></p>
+<blockquote>
+<p>可能是因为路径问题，返回的是404，不一定是文件类型错误</p>
+</blockquote>
+</li>
+<li>
+<p><code>queryelement of null</code></p>
+<blockquote>
+<p>有可能和tab toolbar heder有关（忘记这是个什么问题了）</p>
+</blockquote>
+</li>
+<li>
+<p>同时引用两个toolbar，content会不排除header高度，造成遮盖（这个问题也不确定是不是这么描述）</p>
+</li>
+<li>
+<p>viewChild获取不到子元素问题</p>
+<ul>
+<li>方法1</li>
+</ul>
+<blockquote>
+<p>子元素上应用了ngIf 会导致</p>
+</blockquote>
+<ul>
+<li>方法2</li>
+</ul>
+<blockquote>
+<p>改用viewChildren 来获取所有子元素（该方法未测试）</p>
+</blockquote>
+</li>
+<li>
+<p>组件内部使用ngDoCheck并调用interval计时器，可能会导致页面内存泄露，造成页面卡死</p>
+</li>
+</ol>
+<h2 id="0x02-ionic3-特殊事件类型">0x02 ionic3 特殊事件类型</h2>
+<ol>
+<li>ionic3 press表示长按事件</li>
+</ol>
+<h2 id="0x03-ionic3-插件注意事项">0x03 ionic3 插件注意事项</h2>
+<ol>
+<li>
+<p>调用原生拍照后转base64， 需要注意现在相机分辨率高，最好是先用<code>resizer</code>插件压缩一下，否则可能会失败。</p>
+</li>
+<li>
+<p><code>backgroundMode</code>在<code>Android 8</code>下不生效，报错<code>bad notification...</code></p>
+<blockquote>
+<p>解决方法： 用命令<code>ionic cordova platforms remove android</code>删除<code>platform</code>里的<code>android</code>， 重新用<code>ionic cordova platforms add android@7.0.0</code> <a href="https://github.com/katzer/cordova-plugin-background-mode/issues/411">参考链接</a></p>
+</blockquote>
+</li>
+</ol>
+<h2 id="0x04-ionic3-请求拦截器-httpclient-请求体">0x04 ionic3 请求拦截器 HttpClient 请求体</h2>
+<ol>
+<li>在拦截器中获取<code>req.headers</code>里设定的自定义变量 使用<code>req.headers.get</code></li>
+</ol>
+<pre><code>intercept(req, next: HttpHandler){
+    // 用req.headers.key取不到值
+    let hadBaseurl = req.headers.get('hadBaseurl);
+    // 用`req.paramas.key`取不到值
+    let hastoken = req.params.get('hastoken');
+}
+</code></pre>
+<ol start="2">
+<li>在请求体中设置<code>req.headers</code>的自定义变量 使用<code>req.headers.set</code></li>
+</ol>
+<pre><code>intercept(req, next: HttpHandler){
+   let newReq = req.clone({
+     url: req.url
+   })
+   // 此处设置额外的头部，token之类
+   newReq.headers = newReq.headers.set('Token', 'daflj3lklkdacjlk')
+} 
+</code></pre>
+<ol start="3">
+<li>在请求体中删除<code>req.headers</code>的变量 使用<code>req.headers.delete</code> <strong>生成的新值赋值给newReq</strong></li>
+</ol>
+<pre><code>intercept(req, next: HttpHandler){
+   let newReq = req.clone({
+     url: req.url
+   })
+   // 此处设置额外的头部，token之类
+   newReq.headers = newReq.headers.delete('hadBaseurl')
+   newReq.headers = newReq.headers.delete('uploadType')
+} 
+</code></pre>
+<ol start="4">
+<li>form表单方式上传文件的<code>content-type</code>应该是<code>multipart/form-data</code></li>
+</ol>
+<pre><code>intercept(req, next: HttpHandler) {
+  // 非上传文件的content-type
+  if (!req.headers.get('uploadType')){
+    newReq.headers = newReq.headers.set('Content-Type', 'application/json')
+  }
+  // 上传文件content-type 默认的应该是multipart/form-data ，否则丢失boundary参数 无法解析formdata
+}
+</code></pre>
+<h2 id="0x05-angular4-的pipe管道-如果要使用es6的promise语法需要asyncpipe异步管道">0x05 Angular4 的Pipe管道 如果要使用es6的Promise语法需要asyncPipe异步管道</h2>
+<pre><code>&lt;img [src]=&quot;item | fileToBase64 | async&quot; alt=&quot;&quot;&gt;
+加了 `| async` fileToBase64就可以使用promise/observable
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Hybird]]></title>
+        <id>http://blog.te.6foo.cn/post/hybird</id>
+        <link href="http://blog.te.6foo.cn/post/hybird">
+        </link>
+        <updated>2019-07-18T05:27:37.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="android开发混合项目">Android开发混合项目</h1>
+<h2 id="0x00-加入一个activity">0x00 加入一个<code>Activity</code></h2>
+<ol>
+<li>将<code>package</code>拷贝到<code>java</code>目录， 在<code>AndroidMainfest</code>中将<code>package</code>设置成<code>主activity的包名</code>，加入要导入项目的<code>activity</code>标签，<code>name</code>使用<code>java</code>下的全路径，<code>intent-filter</code>标签，标志着是否生成图标</li>
+<li><code>build.gradle</code>中<code>implementation</code>包的版本不同，调整各个页面的包继承，比如有<code>v7 MainActivity</code>继承于<code>AppCompatActivity</code>，没有可能就要继承于<code>Activity（Program type already present: android.support.v4.app.BackStackRecord$Op）</code></li>
+<li><code>R变量不存在</code>，因为AndroidMainfest的package发生变化，引用的页面中需要重新导入正确包路径</li>
+</ol>
+<h2 id="0x01-引入一个moudle">0x01 引入一个<code>Moudle</code></h2>
+<ol>
+<li>将要引入的<code>Module</code>复制到项目对应目录，在<code>Settings.gradle</code>中添加<code>该Module</code>，在项目属性（SDK和AVD中间图标）中将<code>新增module</code>引入<code>对应的module</code>，如<code>CordovaLib</code>引入<code>Ionic所在的Module</code></li>
+<li>所有<code>build.gradle</code>中对应的 <strong>最小</strong> sdk，<code>targetSdkVersion</code>都应该 <strong>相同</strong></li>
+<li><code>module</code>中的<code>apply plugin</code>最后应该是<code>library</code>，同时应该删除<code>applicationId</code></li>
+<li><code>Cordova</code>：需要版本库为<code>16</code>以上，项目中所有最小值都应该是<code>16</code></li>
+</ol>
+<h2 id="0x02嵌入vue项目">0x02嵌入Vue项目</h2>
+<ol>
+<li>
+<p>webview中通过引入文件引入vue项目的，必须要写到index.html，这个时候的路由方式是 <code>index.html#/page</code>。<strong>去掉#前面的/</strong></p>
+</li>
+<li>
+<p>vue组件方法暴露给webview外部的native调用 <code>生命周期mounted中定义window.myfunc = this.myfunc</code></p>
+</li>
+<li>
+<p>嵌入webview的录音功能</p>
+<ul>
+<li><s>网页可以使用的recorder-js，在webview中无法使用，因为无权限</s></li>
+<li>在native中定义函数实现录音方法，通过js在vue中调用</li>
+</ul>
+</li>
+<li>
+<p>嵌入webview的audio音频播放</p>
+<ul>
+<li>方法1
+<blockquote>
+<p>webview中引入音频，必须要点击audio或者父级穿透到audio，才能调用audio的play方法。</p>
+</blockquote>
+</li>
+<li>方法2
+<blockquote>
+<p>或者在native的webview配置中setMediaPlaybackRequiresUserGesture(boolean require)（默认为true），设置WebView是否需要用户手势才能播放媒体。设置方法未测试）</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>
+<p>vue项目拍照权限</p>
+<ul>
+<li>需要<code>相机</code>和<code>存储</code>权限</li>
+</ul>
+</li>
+</ol>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[H5+CSS3+JS]]></title>
         <id>http://blog.te.6foo.cn/post/h5css3js</id>
