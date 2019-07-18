@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>关于 | Gridea</title>
+<title>H5+CSS3+JS | Gridea</title>
 <meta name="description" content="温故而知新" />
 <link rel="shortcut icon" href="http://blog.te.6foo.cn/favicon.ico?v=1563426587355">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -73,11 +73,11 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              关于
+              H5+CSS3+JS
             </h2>
             <div class="post-info">
               <span>
-                2019-01-25
+                2019-07-18
               </span>
               <span>
                 1 min read
@@ -87,16 +87,92 @@
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <p>这是关于的页面，可以在这里向世界介绍你！</p>
+                <h1 id="h5">H5</h1>
+<ol>
+<li>页面嵌入iframe会页面闪烁 <code>iframe上增加frameborder = 0</code> 解决</li>
+<li>页面中body 加上<code>onselectstart=&quot;return false;&quot;</code>可以去除用户复制能力</li>
+</ol>
+<h1 id="css3">CSS3</h1>
+<h2 id="css3新特性技巧">CSS3新特性技巧</h2>
+<ol>
+<li>
+<p>flex多行多列布局，自动换行</p>
+<ul>
+<li>flex-flow: row wrap; 容器加上这个属性，元素再设定宽度</li>
+<li>box-sizing: border-box 使padding不影响最终宽度</li>
+<li>图片超出宽度，内容居中可以用flex，column布局，justcontent和alignitems设置为center（未测试，根据文字如果要居中两头截断猜测）</li>
+</ul>
+</li>
+</ol>
+<h2 id="ie浏览器适配">IE浏览器适配</h2>
+<ol>
+<li>
+<p>IE浏览器中的<code>zoom</code>属性, 会将所有的边距<code>right left top bottom margin padding</code>不进行缩放，元素缩放后，占位还是<code>zoom： 1</code>，显示内容只占据占位区域的左上角位置。造成与chrome不统一的问题</p>
+</li>
+<li>
+<p>ie中inline-block不对其：<code>字体设置成微软雅黑</code></p>
+</li>
+<li>
+<p>ie中不兼容不标准的时间字符串，要用<code>yyyy/mm/dd hh:mm:ss</code> 并且hh不能大于24小时，月份不能大于12之类</p>
+<ul>
+<li>echats 使用了时间出现兼容问题可以考虑这一点</li>
+</ul>
+</li>
+</ol>
+<h1 id="js">JS</h1>
+<ol>
+<li>
+<p>document初始化时通过on绑定到元素上的事件，在元素重新生成时会销毁，需要重新绑定事件</p>
+</li>
+<li>
+<p>因为浏览器安全策略问题，<code>input[type=file]</code>不能通过js获取文件进行上传，需要将文件转blob，通过ajax进行上传</p>
+</li>
+</ol>
+<h1 id="jquery">JQuery</h1>
+<ol>
+<li><code>JQuery-editable-select</code>插件，直接清空<code>select</code>的<code>val</code>可以清空值，但是选项列表保留了筛选过的状态，需要手动还原。<code>$().next('.es-list')</code>获取到下级<code>ul</code>用<code>.removeClass,addClass,removeAttr('style')</code>修正</li>
+</ol>
+<h1 id="通过bower包管理器引入的文件">通过bower包管理器引入的文件</h1>
+<h2 id="整体使用方式类似npm">整体使用方式类似npm</h2>
+<ol>
+<li><code>bower init</code>创建管理文件</li>
+<li><code>bower install xxx --save</code> 安装插件并保存到管理文件中</li>
+<li><code>bower install</code> 安装管理文件里所有的包</li>
+</ol>
 
               </div>
               <div class="toc-container">
-                
+                <ul class="markdownIt-TOC">
+<li><a href="#h5">H5</a></li>
+<li><a href="#css3">CSS3</a>
+<ul>
+<li><a href="#css3%E6%96%B0%E7%89%B9%E6%80%A7%E6%8A%80%E5%B7%A7">CSS3新特性技巧</a></li>
+<li><a href="#ie%E6%B5%8F%E8%A7%88%E5%99%A8%E9%80%82%E9%85%8D">IE浏览器适配</a></li>
+</ul>
+</li>
+<li><a href="#js">JS</a></li>
+<li><a href="#jquery">JQuery</a></li>
+<li><a href="#%E9%80%9A%E8%BF%87bower%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8%E5%BC%95%E5%85%A5%E7%9A%84%E6%96%87%E4%BB%B6">通过bower包管理器引入的文件</a>
+<ul>
+<li><a href="#%E6%95%B4%E4%BD%93%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%E7%B1%BB%E4%BC%BCnpm">整体使用方式类似npm</a></li>
+</ul>
+</li>
+</ul>
+
               </div>
             </div>
           </article>
         </div>
 
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="http://blog.te.6foo.cn/post/hello-gridea">
+              <h3 class="post-title">
+                Hello Gridea
+              </h3>
+            </a>
+          </div>
         
 
         
