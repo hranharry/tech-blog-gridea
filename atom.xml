@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.te.6foo.cn</id>
     <title>Idea Touch</title>
-    <updated>2019-07-19T00:59:01.145Z</updated>
+    <updated>2019-08-10T07:08:40.533Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.te.6foo.cn"/>
     <link rel="self" href="https://blog.te.6foo.cn/atom.xml"/>
@@ -10,6 +10,16 @@
     <logo>https://blog.te.6foo.cn/images/avatar.png</logo>
     <icon>https://blog.te.6foo.cn/favicon.ico</icon>
     <rights>All rights reserved 2019, Idea Touch</rights>
+    <entry>
+        <title type="html"><![CDATA[我爱上的确实是十七岁的你和自己]]></title>
+        <id>https://blog.te.6foo.cn/post/wo-ai-shang-de-que-shi-shi-shi-qi-sui-de-ni-he-zi-ji</id>
+        <link href="https://blog.te.6foo.cn/post/wo-ai-shang-de-que-shi-shi-shi-qi-sui-de-ni-he-zi-ji">
+        </link>
+        <updated>2019-07-19T00:59:28.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="️不要我不打伞">❤️不要，我不打伞</h3>
+<p>连绵一周的雨天把这座东部沿海的小镇笼罩在朦胧的烟气中，像极了17岁男孩女孩的感情，布满岁月痕迹的青石板路和青砖瓦房让</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[VUE]]></title>
         <id>https://blog.te.6foo.cn/post/vue</id>
