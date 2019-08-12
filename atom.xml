@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.te.6foo.cn</id>
     <title>Idea Touch</title>
-    <updated>2019-08-10T07:08:40.533Z</updated>
+    <updated>2019-08-12T05:42:36.714Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.te.6foo.cn"/>
     <link rel="self" href="https://blog.te.6foo.cn/atom.xml"/>
@@ -11,13 +11,145 @@
     <icon>https://blog.te.6foo.cn/favicon.ico</icon>
     <rights>All rights reserved 2019, Idea Touch</rights>
     <entry>
-        <title type="html"><![CDATA[我爱上的确实是十七岁的你和自己]]></title>
-        <id>https://blog.te.6foo.cn/post/wo-ai-shang-de-que-shi-shi-shi-qi-sui-de-ni-he-zi-ji</id>
-        <link href="https://blog.te.6foo.cn/post/wo-ai-shang-de-que-shi-shi-shi-qi-sui-de-ni-he-zi-ji">
+        <title type="html"><![CDATA[centOS+宝塔面板搭建frp内网穿透]]></title>
+        <id>https://blog.te.6foo.cn/post/centosbao-ta-mian-ban-da-jian-frp-nei-wang-chuan-tou</id>
+        <link href="https://blog.te.6foo.cn/post/centosbao-ta-mian-ban-da-jian-frp-nei-wang-chuan-tou">
         </link>
-        <updated>2019-07-19T00:59:28.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="️不要我不打伞">❤️不要，我不打伞</h3>
-<p>连绵一周的雨天把这座东部沿海的小镇笼罩在朦胧的烟气中，像极了17岁男孩女孩的感情，布满岁月痕迹的青石板路和青砖瓦房让</p>
+        <updated>2019-08-10T07:09:09.000Z</updated>
+        <summary type="html"><![CDATA[<p>用惯了ngrok 要不要换个口味，frp似乎更加简便。<br>
+抛开稳定性，个人认为ngrok可以每次启动定义端口和子域名，<br>
+而frp可以配置多个项目一键启动</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>用惯了ngrok 要不要换个口味，frp似乎更加简便。<br>
+抛开稳定性，个人认为ngrok可以每次启动定义端口和子域名，<br>
+而frp可以配置多个项目一键启动</p>
+<!-- more -->
+<h1 id="服务端">服务端</h1>
+<ol>
+<li>下载<a href="https://github.com/fatedier/frp/releases/download/v0.28.2/frp_0.28.2_freebsd_amd64.tar.gz">linux-amd64</a>包，当前最新版本0.28.2。<a href="https://github.com/fatedier/frp/releases">releases仓库</a>  <a href="https://github.com/fatedier/frp">github</a></li>
+<li>上传服务器解压<br>
+假设解压到了/www/frp目录</li>
+<li>编辑配置文件<br>
+服务端是<code>frps.ini</code>，配置信息如下：</li>
+</ol>
+<pre><code>[common]
+bind_addr = 0.0.0.0
+# 绑定端口
+bind_port = 5443
+kcp_bind_port = 5443
+# 控制面板端口
+dashboard_port = 6443
+
+#认证超时时间，默认900秒
+authentication_timeout = 900
+
+#服务端面板的登录用户名，自行设置，后面有用。
+dashboard_user = YourUsername
+
+#服务端面板的登录密码，自行设置，后面有用。
+dashboard_pwd = YourPassword
+
+#http端口，不要设置80，否则和宝塔面板端口号冲突
+vhost_http_port = 808
+
+#https端口，不要设置443，否则和宝塔面板端口号冲突
+vhost_https_port = 909
+
+#相当于客户端连接服务端的通关密码，随便设置，后面有用。
+token = YourToken
+
+max_pool_count = 50
+tcp_mux = true
+
+# 自定义404 页面，要用绝对路径哦！
+custom_404_page = /www/frp/404.html
+
+#你绑定域名的二级域名，假如绑定的是*.frp.domain.com，就填frp.domain.com。
+subdomain_host = frp.domain.com
+</code></pre>
+<ol start="4">
+<li>设置开机自启</li>
+</ol>
+<ul>
+<li>创建后台启动模版<br>
+<code>touch /etc/systemd/system/frp.service</code></li>
+<li>填写启动配置</li>
+</ul>
+<pre><code>[Unit]
+Description=frps
+After=network.target
+
+[Service]
+ExecStart=/root/frp_0.27.0_linux_amd64/frps -c /root/frp_0.27.0_linux_amd64/frps.ini 
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<ul>
+<li>测试启动<br>
+<code>启动测试 systemctl start frp.service</code><br>
+<code>查看状态 systemctl status frp.service</code><br>
+<code>正式启用 systemctl enable frp.service</code></li>
+</ul>
+<ol start="5">
+<li>更多配置<a href="https://github.com/fatedier/frp/blob/master/README_zh.md">参考文档</a></li>
+</ol>
+<h1 id="客户端">客户端</h1>
+<h2 id="macos">MacOS</h2>
+<ol>
+<li>下载mac版<a href="https://github.com/fatedier/frp/releases/download/v0.28.2/frp_0.28.2_darwin_amd64.tar.gz">release包</a></li>
+<li>解压到任意目录 如~/frp</li>
+<li>配置客户端配置文件<code>frpc.ini</code>(运行时选择启动的，文件名无所谓)</li>
+</ol>
+<pre><code>
+[common]
+#你的服务端IP地址
+server_addr = frp.domain.com
+server_port = 5443
+# 如果服务端设置了token，这里也要加上
+#token = YourToken
+
+[web1]
+type = http
+#客户端所在内网的IP地址
+local_ip = 127.0.0.1
+local_port = localPort
+#远程连接的端口号，可自行设置，远程http端口
+remote_port = 808
+#绑定二级域名的前缀
+subdomain = web1
+
+[web2]
+# 协议为http（即80端口）
+type = http
+# 内部映射的IP
+local_ip =127.0.0.1
+# 内部映射为80端口
+local_port = localPort
+#远程连接的端口号，可自行设置，远程http端口
+remote_port = 808
+# 映射域名为
+subdomain = web2
+# 或者直接指定全域名（你只需要将域名解析到服务器上）
+# custom_domains = web2.frp.domain.com
+
+[ssh]
+type = tcp
+local_ip = 127.0.0.1
+local_port = 22
+# 远程端口
+remote_port =远端ssh端口
+</code></pre>
+<ol start="4">
+<li>运行客户端<br>
+<code>./frpc -c frpc.ini</code></li>
+</ol>
+<h1 id="todo">TODO</h1>
+<ol>
+<li>其他客户端配置</li>
+<li>服务端适配反向代理以使用80 和 443端口</li>
+<li>docker配置</li>
+</ol>
 ]]></content>
     </entry>
     <entry>
