@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.te.6foo.cn</id>
     <title>Idea Touch</title>
-    <updated>2019-08-29T09:15:53.070Z</updated>
+    <updated>2019-08-29T09:16:47.267Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.te.6foo.cn"/>
     <link rel="self" href="https://blog.te.6foo.cn/atom.xml"/>
@@ -10,6 +10,88 @@
     <logo>https://blog.te.6foo.cn/images/avatar.png</logo>
     <icon>https://blog.te.6foo.cn/favicon.ico</icon>
     <rights>All rights reserved 2019, Idea Touch</rights>
+    <entry>
+        <title type="html"><![CDATA[JS对base64图片做压缩操作]]></title>
+        <id>https://blog.te.6foo.cn/post/js-dui-base64-tu-pian-zuo-ya-suo-cao-zuo</id>
+        <link href="https://blog.te.6foo.cn/post/js-dui-base64-tu-pian-zuo-ya-suo-cao-zuo">
+        </link>
+        <updated>2019-08-29T09:05:12.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="获取原图base64宽高">获取原图base64,宽高</h1>
+<pre><code>var reader =new FileReader();
+reader.readAsDataURL(imgFile);
+reader.onloadend=function(){ //文件读取结束的时候上传到服务器
+	var img =document.createElement(&quot;img&quot;);
+	img.src = reader.result;
+	var width = img.width;
+	var height = img.height;
+	// 调用压缩
+	var resultBase64 = compressImg(img, width, height);
+})
+</code></pre>
+<h1 id="压缩主函数">压缩主函数</h1>
+<pre><code>function compress (img, width, height) {
+	if(img.src.length &lt;2000000) { //小于200K的压缩
+return img.src;
+}
+//用于压缩图片的canvas
+console.log(width + &quot;,&quot; + height)
+let canvas = document.createElement(&quot;canvas&quot;);
+let ctx = canvas.getContext('2d');
+
+// 瓦片canvas
+// var tCanvas = document.createElement(&quot;canvas&quot;);
+// var tctx = tCanvas.getContext(&quot;2d&quot;);
+
+let initSize = img.src.length;
+// console.log(img.src)
+
+var ratio;
+if ((ratio = width * height / 4000000) &gt; 1) {
+ratio *=10;
+
+width /= ratio;
+height /= ratio;
+} else {
+ratio = 5;
+}
+console.log('ratio=' +ratio)
+canvas.width = width * 2;
+console.log(width)
+canvas.height = height * 2;
+//铺底色
+ctx.fillStyle = &quot;#fff&quot;;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+//如果图片像素大于100万则使用瓦片绘制
+// var count;
+// if ((count = width * height / 1000000) &gt; 1) {
+// console.log('count='+count)
+// count = ~~(Math.sqrt(count) + 1); //计算要分成多少块瓦片
+// //计算每块瓦片的宽和高
+// var nw = ~~(width / count);
+// var nh = ~~(height / count);
+// tCanvas.width = nw;
+// tCanvas.height = nh;
+// for (var i = 0; i &lt; count; i++) {
+// for (var j = 0; j &lt; count; j++) {
+// tctx.drawImage(img, i * nw * ratio, j * nh * ratio, nw * ratio * 2, nh * ratio * 2, 0, 0, nw, nh);
+// ctx.drawImage(tCanvas, i * nw, j * nh, nw * 2, nh * 2);
+// }
+// }
+// } else {
+ctx.drawImage(img, 0, 0, width * 2, height * 2);
+// }
+//进行最小压缩
+let dataURL = canvas.toDataURL('image/jpeg', 1);
+
+console.log('压缩前：' + initSize);
+console.log('压缩后：' + dataURL.length);
+console.log('压缩率：' + ~~(100 * (initSize - dataURL.length) / initSize) + &quot;%&quot;);
+console.log(dataURL)
+return dataURL;
+}
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[centOS+宝塔面板搭建frp内网穿透]]></title>
         <id>https://blog.te.6foo.cn/post/centosbao-ta-mian-ban-da-jian-frp-nei-wang-chuan-tou</id>
