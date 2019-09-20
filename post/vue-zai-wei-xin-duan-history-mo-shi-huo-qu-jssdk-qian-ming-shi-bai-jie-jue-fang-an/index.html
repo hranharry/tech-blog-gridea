@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>React | Idea Touch</title>
+<title>VUE在微信端History模式获取jssdk签名失败解决方案 | Idea Touch</title>
 <meta name="description" content="填不填的都是坑" />
 <link rel="shortcut icon" href="https://blog.te.6foo.cn/favicon.ico?v=1568996676448">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -79,117 +79,72 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              React
+              VUE在微信端History模式获取jssdk签名失败解决方案
             </h2>
             <div class="post-info">
               <span>
-                2019-07-18
+                2019-09-21
               </span>
               <span>
                 1 min read
               </span>
               
-                <a href="https://blog.te.6foo.cn/tag/m_KOhvjgT" class="post-tag">
-                  # 填坑
-                </a>
-              
-                <a href="https://blog.te.6foo.cn/tag/u0uTlGgZD" class="post-tag">
-                  # 前端
-                </a>
-              
             </div>
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <h1 id="react直接引入方式">react直接引入方式</h1>
-<h2 id="0x00-基本">0x00 基本</h2>
-<ol>
-<li>
-<p>引入<code>react/react-dom/babel/babel-polyfill</code>，解决IE兼容问题</p>
-</li>
-<li>
-<p>script标签中<code>jsx</code>的type是<code>text/babel</code></p>
-</li>
-</ol>
-<h2 id="0x01-区分jsx文件创建组件">0x01 区分jsx文件创建组件</h2>
-<ol>
-<li>
-<p>引入全局变量绑定组件</p>
-</li>
-<li>
-<p>通过js动态循环地址插入body中</p>
-</li>
-</ol>
-<pre><code>var mail = {};
-var mailComponent = {};
-var cssPathList = [
-  'src/common.css',
-  'src/component/hon-title.css',
-  'src/component/hon-body.css',
-  'src/component/add-mail-main.css',
-  'src/component/add-mail-box.css',
-  'src/component/add-mail-checklist.css',
-  'src/component/add-mail-choosetab.css',
-];
-for(var i = 0; i &lt; cssPathList.length; i++){
-  var css = document.createElement(&quot;link&quot;);
-  css.rel=&quot;stylesheet&quot;;
-  css.href = cssPathList[i];
-  document.head.appendChild(css);
-}
-var jsPathList = [
-  'src/component/add-mail-main.jsx',
-  'src/component/hon-title.jsx',
-  'src/component/hon-body.jsx',
-  'src/component/add-mail-box.jsx',
-  'src/component/add-mail-checklist.jsx',
-  'src/component/add-mail-choosetab.jsx',
-  'src/component/add-mail-radiogroup.jsx',
-  'src/component/add-mail-input.jsx',
-  'src/index.jsx'
-]
-for (var i = 0 ; i &lt; jsPathList.length ; i++) {
-  var script = document.createElement(&quot;script&quot;);
-  script.type = &quot;text/babel&quot;;
-  script.src = jsPathList[i];
-  document.body.appendChild(script);
-}
-</code></pre>
-<h2 id="0x02-vscode编辑器设置">0x02 VSCODE编辑器设置</h2>
-<ol>
-<li>在jsx文件中使用<code>emmet</code>，使用tab生成标签</li>
-</ol>
-<pre><code>&quot;emmet.syntaxProfiles&quot;: {
-    &quot;javascript&quot;: &quot;jsx&quot;
+                <h1 id="原因">原因</h1>
+<p>vue-router切换的时候操作的都是浏览器的历史记录，iOS会把第一次刚进入时的URL作为真实URL，安卓会把当前URL作为真实URL。</p>
+<p>所以导致后端在配置好的授权参数获得的config参数和微信sdk获取的参数是不一样的。</p>
+<h1 id="解决方案">解决方案</h1>
+<pre><code>{
+  path: '/namecheck',
+  component: NameCheck,
+  beforeEnter:(to,from,next)=&gt;{
+    var u = navigator.userAgent;
+    var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+    // XXX: 修复iOS版微信HTML5 History兼容性问题
+    if (isiOS &amp;&amp; to.path !== location.pathname) {
+      // 此处不可使用location.replace
+      location.assign(to.fullPath)
+    } else {
+      next()
+    }
+  },
+  name: 'namecheck',
+  meta: {
+    requireAuth: true,
+  }
 },
-&quot;emmet.includeLanguages&quot;: {
-    &quot;javascript&quot;: &quot;javascriptreact&quot;
-}
 </code></pre>
-<ol start="2">
-<li>插件babel javascript -michael有问题, 会导致html里script标签高亮错误</li>
-<li>插件 Full React 较好</li>
-</ol>
-<h2 id="直接引入方式的问题排查">直接引入方式的问题排查</h2>
-<ol>
-<li><code>index.html</code>中的<code>reactDom.render</code>是更组件，其中的props如果是变量，直接修改变量更新不会生效。</li>
-</ol>
-<blockquote>
-<ul>
-<li>异步请求需要传入props的实现方式</li>
-<li>异步成功回调中书写reactDom.render内容，此时组件内componentWillReceiveProps(nextProps)，能获得更新的props</li>
-</ul>
-</blockquote>
+<p>也可以用全局router拦截</p>
+<pre><code>router.beforeEach(async (to, from, next) =&gt; {
+  let originUrlArr = location.href.split('#')[0].split('://')
+  let originUrl = originUrlArr[1].split('/')[0]
+  window.initUrl = originUrlArr[0] + '://' + originUrl + to.fullPath
+  let u = navigator.userAgent;
+  let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+  // XXX: 修复iOS版微信HTML5 History兼容性问题
+  if (isiOS &amp;&amp; to.path !== location.pathname) {
+    // 此处不可使用location.replace
+    location.assign(to.fullPath)
+  }else {
+		next()
+	}
+})
+</code></pre>
+<h2 id="windowlocationassignurl-加载-url-指定的新的-html-文档-就相当于一个链接跳转到指定的url当前页面会转为新页面内容可以点击后退返回上一个页面">window.location.assign(url) ： 加载 URL 指定的新的 HTML 文档。 就相当于一个链接，跳转到指定的url，当前页面会转为新页面内容，可以点击后退返回上一个页面。</h2>
+<h2 id="windowlocationreplaceurl-通过加载-url-指定的文档来替换当前文档-这个方法是替换当前窗口页面前后两个页面共用一个">window.location.replace(url) ： 通过加载 URL 指定的文档来替换当前文档 ，这个方法是替换当前窗口页面，前后两个页面共用一个</h2>
+<p>窗口，所以是没有后退返回上一页的</p>
 
               </div>
               <div class="toc-container">
                 <ul class="markdownIt-TOC">
-<li><a href="#react%E7%9B%B4%E6%8E%A5%E5%BC%95%E5%85%A5%E6%96%B9%E5%BC%8F">react直接引入方式</a>
+<li><a href="#%E5%8E%9F%E5%9B%A0">原因</a></li>
+<li><a href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">解决方案</a>
 <ul>
-<li><a href="#0x00-%E5%9F%BA%E6%9C%AC">0x00 基本</a></li>
-<li><a href="#0x01-%E5%8C%BA%E5%88%86jsx%E6%96%87%E4%BB%B6%E5%88%9B%E5%BB%BA%E7%BB%84%E4%BB%B6">0x01 区分jsx文件创建组件</a></li>
-<li><a href="#0x02-vscode%E7%BC%96%E8%BE%91%E5%99%A8%E8%AE%BE%E7%BD%AE">0x02 VSCODE编辑器设置</a></li>
-<li><a href="#%E7%9B%B4%E6%8E%A5%E5%BC%95%E5%85%A5%E6%96%B9%E5%BC%8F%E7%9A%84%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5">直接引入方式的问题排查</a></li>
+<li><a href="#windowlocationassignurl-%E5%8A%A0%E8%BD%BD-url-%E6%8C%87%E5%AE%9A%E7%9A%84%E6%96%B0%E7%9A%84-html-%E6%96%87%E6%A1%A3-%E5%B0%B1%E7%9B%B8%E5%BD%93%E4%BA%8E%E4%B8%80%E4%B8%AA%E9%93%BE%E6%8E%A5%E8%B7%B3%E8%BD%AC%E5%88%B0%E6%8C%87%E5%AE%9A%E7%9A%84url%E5%BD%93%E5%89%8D%E9%A1%B5%E9%9D%A2%E4%BC%9A%E8%BD%AC%E4%B8%BA%E6%96%B0%E9%A1%B5%E9%9D%A2%E5%86%85%E5%AE%B9%E5%8F%AF%E4%BB%A5%E7%82%B9%E5%87%BB%E5%90%8E%E9%80%80%E8%BF%94%E5%9B%9E%E4%B8%8A%E4%B8%80%E4%B8%AA%E9%A1%B5%E9%9D%A2">window.location.assign(url) ： 加载 URL 指定的新的 HTML 文档。 就相当于一个链接，跳转到指定的url，当前页面会转为新页面内容，可以点击后退返回上一个页面。</a></li>
+<li><a href="#windowlocationreplaceurl-%E9%80%9A%E8%BF%87%E5%8A%A0%E8%BD%BD-url-%E6%8C%87%E5%AE%9A%E7%9A%84%E6%96%87%E6%A1%A3%E6%9D%A5%E6%9B%BF%E6%8D%A2%E5%BD%93%E5%89%8D%E6%96%87%E6%A1%A3-%E8%BF%99%E4%B8%AA%E6%96%B9%E6%B3%95%E6%98%AF%E6%9B%BF%E6%8D%A2%E5%BD%93%E5%89%8D%E7%AA%97%E5%8F%A3%E9%A1%B5%E9%9D%A2%E5%89%8D%E5%90%8E%E4%B8%A4%E4%B8%AA%E9%A1%B5%E9%9D%A2%E5%85%B1%E7%94%A8%E4%B8%80%E4%B8%AA">window.location.replace(url) ： 通过加载 URL 指定的文档来替换当前文档 ，这个方法是替换当前窗口页面，前后两个页面共用一个</a></li>
 </ul>
 </li>
 </ul>
@@ -202,9 +157,9 @@ for (var i = 0 ; i &lt; jsPathList.length ; i++) {
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://blog.te.6foo.cn/post/ionic3">
+            <a href="https://blog.te.6foo.cn/post/js-dui-base64-tu-pian-zuo-ya-suo-cao-zuo">
               <h3 class="post-title">
-                Ionic3
+                JS对base64图片做压缩操作
               </h3>
             </a>
           </div>

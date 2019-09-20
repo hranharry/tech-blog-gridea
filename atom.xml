@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.te.6foo.cn</id>
     <title>Idea Touch</title>
-    <updated>2019-08-29T09:16:47.267Z</updated>
+    <updated>2019-09-20T16:24:43.311Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.te.6foo.cn"/>
     <link rel="self" href="https://blog.te.6foo.cn/atom.xml"/>
@@ -10,6 +10,57 @@
     <logo>https://blog.te.6foo.cn/images/avatar.png</logo>
     <icon>https://blog.te.6foo.cn/favicon.ico</icon>
     <rights>All rights reserved 2019, Idea Touch</rights>
+    <entry>
+        <title type="html"><![CDATA[VUE在微信端History模式获取jssdk签名失败解决方案]]></title>
+        <id>https://blog.te.6foo.cn/post/vue-zai-wei-xin-duan-history-mo-shi-huo-qu-jssdk-qian-ming-shi-bai-jie-jue-fang-an</id>
+        <link href="https://blog.te.6foo.cn/post/vue-zai-wei-xin-duan-history-mo-shi-huo-qu-jssdk-qian-ming-shi-bai-jie-jue-fang-an">
+        </link>
+        <updated>2019-09-20T16:22:30.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="原因">原因</h1>
+<p>vue-router切换的时候操作的都是浏览器的历史记录，iOS会把第一次刚进入时的URL作为真实URL，安卓会把当前URL作为真实URL。</p>
+<p>所以导致后端在配置好的授权参数获得的config参数和微信sdk获取的参数是不一样的。</p>
+<h1 id="解决方案">解决方案</h1>
+<pre><code>{
+  path: '/namecheck',
+  component: NameCheck,
+  beforeEnter:(to,from,next)=&gt;{
+    var u = navigator.userAgent;
+    var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+    // XXX: 修复iOS版微信HTML5 History兼容性问题
+    if (isiOS &amp;&amp; to.path !== location.pathname) {
+      // 此处不可使用location.replace
+      location.assign(to.fullPath)
+    } else {
+      next()
+    }
+  },
+  name: 'namecheck',
+  meta: {
+    requireAuth: true,
+  }
+},
+</code></pre>
+<p>也可以用全局router拦截</p>
+<pre><code>router.beforeEach(async (to, from, next) =&gt; {
+  let originUrlArr = location.href.split('#')[0].split('://')
+  let originUrl = originUrlArr[1].split('/')[0]
+  window.initUrl = originUrlArr[0] + '://' + originUrl + to.fullPath
+  let u = navigator.userAgent;
+  let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+  // XXX: 修复iOS版微信HTML5 History兼容性问题
+  if (isiOS &amp;&amp; to.path !== location.pathname) {
+    // 此处不可使用location.replace
+    location.assign(to.fullPath)
+  }else {
+		next()
+	}
+})
+</code></pre>
+<h2 id="windowlocationassignurl-加载-url-指定的新的-html-文档-就相当于一个链接跳转到指定的url当前页面会转为新页面内容可以点击后退返回上一个页面">window.location.assign(url) ： 加载 URL 指定的新的 HTML 文档。 就相当于一个链接，跳转到指定的url，当前页面会转为新页面内容，可以点击后退返回上一个页面。</h2>
+<h2 id="windowlocationreplaceurl-通过加载-url-指定的文档来替换当前文档-这个方法是替换当前窗口页面前后两个页面共用一个">window.location.replace(url) ： 通过加载 URL 指定的文档来替换当前文档 ，这个方法是替换当前窗口页面，前后两个页面共用一个</h2>
+<p>窗口，所以是没有后退返回上一页的</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[JS对base64图片做压缩操作]]></title>
         <id>https://blog.te.6foo.cn/post/js-dui-base64-tu-pian-zuo-ya-suo-cao-zuo</id>
