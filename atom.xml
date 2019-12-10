@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.te.6foo.cn</id>
     <title>Idea Touch</title>
-    <updated>2019-09-20T16:24:43.311Z</updated>
+    <updated>2019-12-10T03:12:32.627Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.te.6foo.cn"/>
     <link rel="self" href="https://blog.te.6foo.cn/atom.xml"/>
@@ -10,6 +10,24 @@
     <logo>https://blog.te.6foo.cn/images/avatar.png</logo>
     <icon>https://blog.te.6foo.cn/favicon.ico</icon>
     <rights>All rights reserved 2019, Idea Touch</rights>
+    <entry>
+        <title type="html"><![CDATA[eggjs & puppeteer 简单爬取网站]]></title>
+        <id>https://blog.te.6foo.cn/post/eggjs-and-puppeteer-jian-dan-pa-qu-wang-zhan</id>
+        <link href="https://blog.te.6foo.cn/post/eggjs-and-puppeteer-jian-dan-pa-qu-wang-zhan">
+        </link>
+        <updated>2019-12-10T03:07:12.000Z</updated>
+        <content type="html"><![CDATA[<p>TIPS:</p>
+<ol>
+<li>部署到centos7.6中时发现 puppeteer报错，打不开共享库，运行下面代码解决</li>
+</ol>
+<pre><code>yum -y install libX11 libXcomposite libXcursor libXdamage libXext libXi libXtst cups-libs libXScrnSaver libXrandr alsa-lib pango atk at-spi2-atk gtk3 
+</code></pre>
+<ol start="2">
+<li>然后出现不能用root用户运行chrome的情况，在page.launch配置中，增加<code>args: ['--no-sandbox']</code>参数</li>
+</ol>
+<h3 id="正文开始">正文开始</h3>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[VUE在微信端History模式获取jssdk签名失败解决方案]]></title>
         <id>https://blog.te.6foo.cn/post/vue-zai-wei-xin-duan-history-mo-shi-huo-qu-jssdk-qian-ming-shi-bai-jie-jue-fang-an</id>

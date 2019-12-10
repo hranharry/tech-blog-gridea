@@ -1,8 +1,8 @@
 <html>
   <head>
-  <meta charset="utf-8" />
+    <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>app | Idea Touch</title>
+<title>eggjs &amp; puppeteer 简单爬取网站 | Idea Touch</title>
 <meta name="description" content="填不填的都是坑" />
 <link rel="shortcut icon" href="https://blog.te.6foo.cn/favicon.ico?v=1575947514605">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -76,73 +76,91 @@
   </div>
 </div>
 
-        <div class="current-tag-container">
-            <h2 class="title">
-                标签：# app
-            </h2> 
-        </div>
-        <div class="post-container">
-  
-    <article class="post">
-      <a href="https://blog.te.6foo.cn/post/ionic3">
-        <h2 class="post-title">Ionic3</h2>
-      </a>
-      <div class="post-info">
-        <span>
-          2019-07-18
-        </span>
-        <span>
-          2 min read
-        </span>
-        
-          <a href="https://blog.te.6foo.cn/tag/kWPE-WXqX" class="post-tag">
-            # app
-          </a>
-        
-          <a href="https://blog.te.6foo.cn/tag/m_KOhvjgT" class="post-tag">
-            # 填坑
-          </a>
-        
-      </div>
-      
-      <div class="post-abstract">
-        
-      </di>
-    </article>
-  
-    <article class="post">
-      <a href="https://blog.te.6foo.cn/post/hybird">
-        <h2 class="post-title">Hybird</h2>
-      </a>
-      <div class="post-info">
-        <span>
-          2019-07-18
-        </span>
-        <span>
-          1 min read
-        </span>
-        
-          <a href="https://blog.te.6foo.cn/tag/kWPE-WXqX" class="post-tag">
-            # app
-          </a>
-        
-          <a href="https://blog.te.6foo.cn/tag/m_KOhvjgT" class="post-tag">
-            # 填坑
-          </a>
-        
-      </div>
-      
-      <div class="post-abstract">
-        
-      </di>
-    </article>
-  
-</div>
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              eggjs &amp; puppeteer 简单爬取网站
+            </h2>
+            <div class="post-info">
+              <span>
+                2019-12-10
+              </span>
+              <span>
+                1 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>TIPS:</p>
+<ol>
+<li>部署到centos7.6中时发现 puppeteer报错，打不开共享库，运行下面代码解决</li>
+</ol>
+<pre><code>yum -y install libX11 libXcomposite libXcursor libXdamage libXext libXi libXtst cups-libs libXScrnSaver libXrandr alsa-lib pango atk at-spi2-atk gtk3 
+</code></pre>
+<ol start="2">
+<li>然后出现不能用root用户运行chrome的情况，在page.launch配置中，增加<code>args: ['--no-sandbox']</code>参数</li>
+</ol>
+<h3 id="正文开始">正文开始</h3>
 
-        <div class="pagination-container">
-  
-  
-</div>
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E6%AD%A3%E6%96%87%E5%BC%80%E5%A7%8B">正文开始</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.te.6foo.cn/post/vue-zai-wei-xin-duan-history-mo-shi-huo-qu-jssdk-qian-ming-shi-bai-jie-jue-fang-an">
+              <h3 class="post-title">
+                VUE在微信端History模式获取jssdk签名失败解决方案
+              </h3>
+            </a>
+          </div>
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: '5859545a45c7e0b81747',
+    clientSecret: '7c07366e986833f334f551e06019575faefd66c8',
+    repo: 'tech-blog-gridea',
+    owner: 'hranharry',
+    admin: ['hranharry'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
 
         <div class="site-footer">
   &copy; copyright by <a href="https://www.6foo.com" target="_blank">六斧伙计</a> | 
