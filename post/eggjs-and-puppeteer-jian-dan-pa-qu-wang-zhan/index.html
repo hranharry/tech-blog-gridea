@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>eggjs &amp; puppeteer 简单爬取网站 | Idea Touch</title>
 <meta name="description" content="填不填的都是坑" />
-<link rel="shortcut icon" href="https://blog.te.6foo.cn/favicon.ico?v=1575947514605">
+<link rel="shortcut icon" href="https://blog.te.6foo.cn/favicon.ico?v=1578204141361">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://blog.te.6foo.cn/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://blog.te.6foo.cn">
-  <img class="avatar" src="https://blog.te.6foo.cn/images/avatar.png?v=1575947514605" alt="">
+  <img class="avatar" src="https://blog.te.6foo.cn/images/avatar.png?v=1578204141361" alt="">
   </a>
   <h1 class="site-title">
     Idea Touch
@@ -101,6 +101,8 @@
 </code></pre>
 <ol start="2">
 <li>然后出现不能用root用户运行chrome的情况，在page.launch配置中，增加<code>args: ['--no-sandbox']</code>参数</li>
+<li>对eggjs 后端发起的post请求，需要在header中加<code>X-Csrf-Token</code> ，来源是cookie，因为有内置security插件作用</li>
+<li>用完browser一定要记得关闭  不然chrome会一直跑</li>
 </ol>
 <h3 id="正文开始">正文开始</h3>
 

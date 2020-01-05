@@ -2,14 +2,600 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.te.6foo.cn</id>
     <title>Idea Touch</title>
-    <updated>2019-12-10T03:12:32.627Z</updated>
+    <updated>2020-01-05T06:02:30.318Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.te.6foo.cn"/>
     <link rel="self" href="https://blog.te.6foo.cn/atom.xml"/>
     <subtitle>填不填的都是坑</subtitle>
     <logo>https://blog.te.6foo.cn/images/avatar.png</logo>
     <icon>https://blog.te.6foo.cn/favicon.ico</icon>
-    <rights>All rights reserved 2019, Idea Touch</rights>
+    <rights>All rights reserved 2020, Idea Touch</rights>
+    <entry>
+        <title type="html"><![CDATA[PHP的workderman部署socket服务，龙兵5.99.77学习研究]]></title>
+        <id>https://blog.te.6foo.cn/post/php-de-workderman-bu-shu-socket-fu-wu</id>
+        <link href="https://blog.te.6foo.cn/post/php-de-workderman-bu-shu-socket-fu-wu">
+        </link>
+        <updated>2020-01-05T01:51:05.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="宝塔面板设置">宝塔面板设置</h1>
+<h2 id="1nginx配置">1.nginx配置</h2>
+<pre><code>location /longbingwss
+{
+proxy_pass http://127.0.0.1:2345;
+proxy_http_version 1.1;
+proxy_set_header Upgrade $http_upgrade;
+proxy_set_header Connection &quot;Upgrade&quot;;
+proxy_set_header X-Real-IP $remote_addr;
+}
+</code></pre>
+<h2 id="2php配置">2.php配置</h2>
+<ul>
+<li>需要安装<code>ionCube``fileinfo``redis</code> 插件，如果有多个php版本，只能一个安装redis插件（宝塔面板中）</li>
+<li>需要解除禁用函数<code>pcntl_signal</code>和<code>pcntl_fork</code></li>
+<li>宝塔如果装有多个php版本，需要在网站-php命令行版本切换到所需版本</li>
+</ul>
+<h2 id="3启动方式">3.启动方式</h2>
+<p><code>php api.php start -d</code>启动，其中<code>api.php</code>为实际执行路径</p>
+<h2 id="4关闭方式">4.关闭方式</h2>
+<p>常规关闭方法是workerman目录下<code>php api.php stop</code><br>
+如果无法关闭成功，先用<code>lsof -i:端口号</code> 找到相应端口进程，再用<code>kill -9 进程号</code>强制关闭，<code>kill -9 $(lsof -i tcp:2345 -t)</code>，可以一步到位。</p>
+<h1 id="龙兵智能名片59977的适配方式">龙兵智能名片5.99.77的适配方式</h1>
+<h2 id="1微擎开启redis">1.微擎开启redis</h2>
+<ul>
+<li>首先在<code>data/config.php</code>文件中，配置redis，密码按实际配置<pre><code>  $config['setting']['redis']['server'] = '127.0.0.1';  //默认本地，你也可以用云库地址（远程）
+  $config['setting']['redis']['port'] = 6379;   //默认端口
+  $config['setting']['redis']['pconnect'] = 1; 
+  $config['setting']['redis']['auth'] = '';  //redis密码, 默认为空
+  $config['setting']['redis']['requirepass'] = '';   //redis密码，默认为空，没用人人商城删除这行
+  $config['setting']['redis']['timeout'] = 1;
+</code></pre>
+</li>
+<li>此时并未开启需要修改这行<code>$config['setting']['cache'] = 'redis'; // 默认是mysql，改为redis</code></li>
+<li><img src="https://blog.te.6foo.cn/post-images/1578203578908.jpg" alt="" loading="lazy"></li>
+</ul>
+<h2 id="2微擎开启workerman">2.微擎开启workerman</h2>
+<p>微擎配置 data/config.php 增加如下代码</p>
+<pre><code>// -------------------------- CONFIG WORKMAN --------------------------- //
+$config['setting']['workerman']['server'] = '0.0.0.0';
+$config['setting']['workerman']['port'] = 2345;
+</code></pre>
+<h2 id="3龙兵启动方式">3.龙兵启动方式</h2>
+<ul>
+<li>cd到插件workerman目录下，运行<code>sh start.sh</code></li>
+<li>宝塔面板定时任务，每分钟执行一次<code>cd workerman目录``php start.php -d</code>脚本(不启动也能用，应该是为了方式进程被杀)</li>
+</ul>
+<h1 id="龙兵59977的修复">龙兵5.99.77的修复</h1>
+<h2 id="动态-列表无法加载">动态-列表无法加载</h2>
+<p>在<code>ims_longbing_card_timeline</code>表中，增加<code>company_id</code>字段int类型，和<code>is_company</code>字段int类型</p>
+<h2 id="im通信前后端不匹配">IM通信前后端不匹配</h2>
+<p>修改api.php，主要是修正了<code>$data</code>的引用问题，应该是<code>$data['data']</code>，通信的回参缺少了<code>action,data,target_id, user_id</code>导致小程序无法解析，修改如下</p>
+<pre><code>&lt;?php
+
+use Workerman\Worker;
+use Workerman\Lib\Timer;
+
+require_once __DIR__ . '/Autoloader.php';
+require_once __DIR__ . '/mysql/src/Connection.php';
+//require_once __DIR__ . '/../config.php';
+// 心跳间隔55秒
+define('HEARTBEAT_TIME', 55);
+
+define('IN_IA', 'tmp');
+include_once __DIR__ . '/../../../data/config.php';
+$workman_server = '0.0.0.0';
+$workman_port = 2345;
+if (!empty($config) &amp;&amp; isset($config['setting'])
+    &amp;&amp; isset($config['setting']['workerman'])
+    &amp;&amp; isset($config['setting']['workerman']['server'])
+    &amp;&amp; $config['setting']['workerman']['server']) {
+    $workman_server = $config['setting']['workerman']['server'];
+}
+if (!empty($config) &amp;&amp; isset($config['setting'])
+    &amp;&amp; isset($config['setting']['workerman'])
+    &amp;&amp; isset($config['setting']['workerman']['port'])
+    &amp;&amp; $config['setting']['workerman']['port']) {
+    $workman_port = $config['setting']['workerman']['port'];
+}
+// 初始化一个worker容器，监听2345端口
+//$worker = new Worker('websocket://0.0.0.0:2345');
+$worker = new Worker('websocket://' . $workman_server . ':' . $workman_port);
+// ====这里进程数必须必须必须设置为1====
+$worker-&gt;count = 1;
+// 新增加一个属性，用来保存uid到connection的映射(uid是用户id或者客户端唯一标识)
+$worker-&gt;uidConnections = array();
+
+$worker-&gt;onWorkerStart = function ($worker) {
+    // 将db实例存储在全局变量中(也可以存储在某类的静态成员中)
+    global $db, $config;
+//    $db = new \Workerman\MySQL\Connection(WM_HOST, WM_PORT, WM_USER, WM_PASSWORD, WM_DBNAME, WM_CHARSET);
+//    $config = file('../../../data/config.php');
+    $host = '';
+    $username = '';
+    $password = '';
+    $port = '';
+    $database = '';
+    $tablepre = '';
+    if (!empty($config)) {
+        if (isset($config['db']) &amp;&amp; isset($config['db']['master']) &amp;&amp; isset($config['db']['master']['host'])) {
+            $host = $config['db']['master']['host'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['master']) &amp;&amp; isset($config['db']['master']['username'])) {
+            $username = $config['db']['master']['username'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['master']) &amp;&amp; isset($config['db']['master']['password'])) {
+            $password = $config['db']['master']['password'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['master']) &amp;&amp; isset($config['db']['master']['port'])) {
+            $port = $config['db']['master']['port'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['master']) &amp;&amp; isset($config['db']['master']['database'])) {
+            $database = $config['db']['master']['database'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['master']) &amp;&amp; isset($config['db']['master']['tablepre'])) {
+            $tablepre = $config['db']['master']['tablepre'];
+        }
+
+
+        if (isset($config['db']) &amp;&amp; isset($config['db']['host'])) {
+            $host = $config['db']['host'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['username'])) {
+            $username = $config['db']['username'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['password'])) {
+            $password = $config['db']['password'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['port'])) {
+            $port = $config['db']['port'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['database'])) {
+            $database = $config['db']['database'];
+        }
+        if (isset($config['db']) &amp;&amp; isset($config['db']['tablepre'])) {
+            $tablepre = $config['db']['tablepre'];
+        }
+
+    }
+    $db = new \Workerman\MySQL\Connection($host, $port, $username, $password, $database, 'utf8mb4');
+
+    Timer::add(1, function () use ($worker) {
+        $time_now = time();
+        foreach ($worker-&gt;connections as $connection) {
+            // 有可能该connection还没收到过消息，则lastMessageTime设置为当前时间
+            if (empty($connection-&gt;lastMessageTime)) {
+                $connection-&gt;lastMessageTime = $time_now;
+                continue;
+            }
+            // 上次通讯时间间隔大于心跳间隔，则认为客户端已经下线，关闭连接
+            if ($time_now - $connection-&gt;lastMessageTime &gt; HEARTBEAT_TIME) {
+                $connection-&gt;close();
+            }
+        }
+    });
+};
+
+// 客户端练上来时，即完成TCP三次握手后的回调
+$worker-&gt;onConnect = function ($connection) {
+    /**
+     * 客户端websocket握手时的回调onWebSocketConnect
+     * 在onWebSocketConnect回调中获得nginx通过http头中的X_REAL_IP值
+     */
+    $connection-&gt;onWebSocketConnect = function ($connection) {
+        /**
+         * connection对象本没有realIP属性，这里给connection对象动态添加个realIP属性
+         * 记住php对象是可以动态添加属性的，你也可以用自己喜欢的属性名
+         */
+        $connection-&gt;realIP = $_SERVER['HTTP_X_REAL_IP'];
+    };
+};
+
+// 当有客户端发来消息时执行的回调函数
+$worker-&gt;onMessage = function ($connection, $data) {
+    global $worker, $db, $config;
+    
+	$data2 = $data;
+    $data = json_decode($data, true);
+    
+    $connection-&gt;lastMessageTime = time();
+
+//    $config = file('../../../data/config.php');
+
+    //  心跳检测
+    if ($data['data']['check'] == '78346+SJDHFA.longbing') {
+        $msg = [
+            'errno' =&gt; 0,
+            'message' =&gt; '接收成功',
+            'data' =&gt; $data['data'],
+            'type' =&gt; '',
+            'action' =&gt; 'checkWs'
+        ];
+        $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+        $connection-&gt;send($msg);
+
+        return false;
+    }
+
+    $tablepre = '';
+    if (!empty($config)) {
+        if (isset($config['db']) &amp;&amp; isset($config['db']['master']) &amp;&amp; isset($config['db']['master']['tablepre'])) {
+            $tablepre = $config['db']['master']['tablepre'];
+        }
+
+        if ($tablepre == '') {
+            if (isset($config['db']) &amp;&amp; isset($config['db']['master']) &amp;&amp; isset($config['db']['tablepre'])) {
+                $tablepre = $config['db']['tablepre'];
+            }
+        }
+    }
+
+
+    //  检测链接是否成功
+    if (isset($data['ping'])) {
+        $connection-&gt;send('pong');
+
+        //  新版本不需要了
+//        $list = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre .&quot;longbing_card_message` WHERE target_id={$data['user_id']} &amp;&amp; user_id = {$data['target_id']} &amp;&amp; status = 1&quot;);
+//
+//        if (is_array($list) &amp;&amp; !empty($list)) {
+//            foreach ($list as $k =&gt; $v) {
+//                if (isset($v['message_type']))
+//                {
+//                    $v['type'] = $v['message_type'];
+//                }
+//
+//
+//                $msg = [
+//                    'errno' =&gt; 0,
+//                    'message' =&gt; '接收成功_1',
+//                    'data' =&gt; $v['content'],
+////                    'data' =&gt; $v,
+//                    'type' =&gt; $v['message_type'],
+//                    'data2'=&gt; $v
+//                ];
+//                $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+//                $connection-&gt;send($msg);
+////                $db-&gt;query(&quot;UPDATE `&quot; . $tablepre . &quot;longbing_card_message` SET status = 2 WHERE id = {$v['id']}&quot;);
+//            }
+//        }
+
+        // 判断当前客户端是否已经验证,即是否设置了uid
+        if (!isset($connection-&gt;uid)) {
+            $connection-&gt;uid = $data['user_id'];
+            /* 保存uid到connection的映射，这样可以方便的通过uid查找connection，
+             * 实现针对特定uid推送数据
+             */
+            $worker-&gt;uidConnections[$connection-&gt;uid] = $connection;
+        }
+
+        return false;
+    }
+
+    //  获取当前用户的未读消息数量
+    if (isset($data['unread']) &amp;&amp; isset($data['to_uid']) &amp;&amp; isset($data['user_id'])
+        &amp;&amp; $data['unread'] &amp;&amp; $data['user_id']) {
+
+        $info = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_user` WHERE id={$data['user_id']}&quot;);
+		
+        //  身为客户, 指定名片的未读消息
+        if ($data['to_uid']) {
+            $list = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_message` 
+            WHERE target_id={$data['user_id']} &amp;&amp; user_id = {$data['to_uid']} &amp;&amp; status = 1&quot;);
+        } //  身为客户, 所有的未读消息
+        else {
+            $list = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_message` 
+            WHERE target_id={$data['user_id']} &amp;&amp; status = 1&quot;);
+        }
+        $user_count = count($list);
+        $staff_count = 0;
+
+        //  当这个人也是员工的时候
+        if ($info &amp;&amp; $info[0]['is_staff'] == 1) {
+            $list = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_message` 
+            WHERE target_id={$data['user_id']} &amp;&amp; status = 1&quot;);
+            $count = count($list);
+            $staff_count = $count;
+        }
+
+
+        $msg = [
+            'errno' =&gt; 0,
+            'message' =&gt; '请求成功',
+            'data' =&gt; ['user_count' =&gt; $user_count, 'staff_count' =&gt; $staff_count],
+            'type' =&gt; 'unread',
+            'msg' =&gt; 'unread',
+        ];
+
+        $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+        $connection-&gt;send($msg);
+
+        // 判断当前客户端是否已经验证,即是否设置了uid
+        if (!isset($connection-&gt;uid)) {
+            $connection-&gt;uid = $data['user_id'];
+            /* 保存uid到connection的映射，这样可以方便的通过uid查找connection，
+             * 实现针对特定uid推送数据
+             */
+            $worker-&gt;uidConnections[$connection-&gt;uid] = $connection;
+        }
+
+        return false;
+    }
+
+
+    $data = $data['data'];
+    if (isset($data['goods_id'])) {
+        $goods_info = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_goods` WHERE id={$data['goods_id']}&quot;);
+        $data['content'] = '您好！我想咨询下商品：' . $goods_info[0]['name'] . '的相关信息。';
+        $data['type'] = 'text';
+    }
+    if (!isset($data['user_id']) || !isset($data['target_id']) || !isset($data['content']) || !isset($data['uniacid'])) {
+        $msg = [
+            'errno' =&gt; -1,
+	        // 'message' =&gt; '请传入必要参数' .$data['user_id'] .'-'.$data['target_id'] .'-'.$data['content'] .'-'.$data['uniacid'],
+            'message' =&gt; $data2,
+            'data' =&gt; []
+        ];
+        $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+        $connection-&gt;send($msg);
+        return false;
+    }
+
+    $user_id = $data['user_id'];
+    $target_id = $data['target_id'];
+    $content = $data['content'];
+    $uniacid = $data['uniacid'];
+    $type = $data['type'];
+
+
+    $check1 = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_chat` WHERE user_id={$user_id} &amp;&amp; target_id = {$target_id}&quot;);
+
+    if (empty($check1)) {
+
+        $check2 = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_chat` WHERE user_id={$target_id} &amp;&amp; target_id = {$user_id}&quot;);
+
+        if (empty($check2)) {
+            $insert_id = $db-&gt;insert($tablepre . 'longbing_card_chat')-&gt;cols(array(
+                    'user_id' =&gt; $user_id,
+                    'target_id' =&gt; $target_id,
+                    'uniacid' =&gt; $uniacid,
+                    'create_time' =&gt; time(),
+                    'update_time' =&gt; time(),
+                )
+            )-&gt;query();
+            $chat_id = $insert_id;
+        } else {
+            $chat_id = $check2[0]['id'];
+        }
+    } else {
+        $chat_id = $check1[0]['id'];
+    }
+
+	
+    if (!$chat_id) {
+        $msg = [
+            'errno' =&gt; -1,
+            'message' =&gt; '系统错误',
+            'data' =&gt; []
+        ];
+        $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+        $connection-&gt;send($msg);
+        return false;
+    }
+
+
+    $install_data = array(
+        'chat_id' =&gt; $chat_id,
+        'user_id' =&gt; $user_id,
+        'target_id' =&gt; $target_id,
+        'content' =&gt; $content,
+        'uniacid' =&gt; $uniacid,
+        'message_type' =&gt; $type,
+        'create_time' =&gt; time(),
+        'update_time' =&gt; time(),
+    );
+
+    $insert_id = $db-&gt;insert($tablepre . 'longbing_card_message')-&gt;cols($install_data)-&gt;query();
+
+    if (!$insert_id) {
+        $msg = [
+            'errno' =&gt; -1,
+            'message' =&gt; '系统错误!',
+            'data' =&gt; []
+        ];
+        $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+        $connection-&gt;send($msg);
+        return false;
+    } else {
+        $install_data['id'] = $insert_id;
+    }
+
+    // 判断当前客户端是否已经验证,即是否设置了uid
+    if (!isset($connection-&gt;uid)) {
+        // 没验证的话把第一个包当做uid（这里为了方便演示，没做真正的验证）
+        $connection-&gt;uid = $user_id;
+        /* 保存uid到connection的映射，这样可以方便的通过uid查找connection，
+         * 实现针对特定uid推送数据
+         */
+        $worker-&gt;uidConnections[$connection-&gt;uid] = $connection;
+//        $connection-&gt;send('login success, your uid is ' . $connection-&gt;uid);
+    }
+
+//    file_put_contents('api.txt', 0 . PHP_EOL, FILE_APPEND);
+//    mark($user_id, $target_id, $uniacid);
+    sendMessageByUid($target_id, $content, $connection, $uniacid, $insert_id, $tablepre, $install_data, $user_id);
+
+    return false;
+    // 其它逻辑，针对某个uid发送 或者 全局广播
+    // 假设消息格式为 uid:message 时是对 uid 发送 message
+    // uid 为 all 时是全局广播
+//    list($recv_uid, $message) = explode(':', $data);
+    // 全局广播
+    if ($target_id == 'all') {
+        broadcast($content);
+    } // 给特定uid发送
+    else {
+        sendMessageByUid($target_id, $content);
+    }
+};
+
+// 当有客户端连接断开时
+$worker-&gt;onClose = function ($connection) {
+    global $worker;
+    // $connection-&gt;send($connection-&gt;uid);
+    // if (isset($connection-&gt;uid)) {
+        // 连接断开时删除映射
+        // unset($worker-&gt;uidConnections[$connection-&gt;uid]);
+    // }
+};
+
+// 向所有验证的用户推送数据
+function broadcast($message)
+{
+    global $worker;
+    foreach ($worker-&gt;uidConnections as $connection) {
+        $connection-&gt;send($message);
+    }
+}
+
+// 针对uid推送数据
+function sendMessageByUid($uid, $message, $con, $uniacid = 0, $insert_id = 0, $tablepre = '', $data2 = array(), $user_id = 0)
+{
+    global $worker, $db;
+
+
+    $info = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_user` WHERE id={$uid}&quot;);
+
+
+    //  未读消息数量
+    $list = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_message` 
+            WHERE target_id={$uid} &amp;&amp; status = 1 &amp;&amp; user_id={$user_id}&quot;);
+
+    $user_count = count($list);
+    $staff_count = 0;
+
+    //  当这个人也是员工的时候
+    if ($info &amp;&amp; $info[0]['is_staff'] == 1) {
+        $list = $db-&gt;query(&quot;SELECT * FROM `&quot; . $tablepre . &quot;longbing_card_message` 
+            WHERE target_id={$uid} &amp;&amp; status = 1&quot;);
+        $count = count($list);
+        $staff_count = $count;
+    }
+
+
+    if (isset($worker-&gt;uidConnections[$uid])) {
+        $connection = $worker-&gt;uidConnections[$uid];
+
+        if (isset($data2['message_type'])) {
+            $data2['type'] = $data2['message_type'];
+        }
+        //  兼容旧版本
+        $msg = [
+            'errno' =&gt; 0,
+            'message' =&gt; '接收成功_2',
+            'user_count' =&gt; $user_count,
+            'staff_count' =&gt; $staff_count,
+            'type' =&gt; $data2['message_type'],
+            'msg' =&gt; 'getMsg',
+            'data' =&gt; $data2,
+            'action' =&gt; 'sendMessage'
+        ];
+        $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+        $connection-&gt;send($msg);
+        $msg = [
+            'errno' =&gt; 0,
+            'message' =&gt; '发送成功_2',
+            'data' =&gt; $data2,
+            'msg' =&gt; 'getMsg',
+            'action' =&gt; 'sendMessage',
+            'user_id'=&gt;$data2['user_id'],
+            'target_id'=&gt;$data2['target_id']
+        ];
+        $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+        $con-&gt;send($msg);
+        if ($insert_id) {
+//            $db-&gt;query(&quot;UPDATE `&quot; . $tablepre . &quot;longbing_card_message` SET status = 2 WHERE id = {$insert_id}&quot;);
+        }
+        return false;
+    } else {
+
+    }
+    $msg = [
+        'errno' =&gt; 0,
+        'message' =&gt; '发送成功_1',
+        'data' =&gt; $data2,
+        'action' =&gt; 'sendMessage',
+        'user_id' =&gt; $data2['user_id'],
+        'target_id' =&gt; $data2['target_id']
+    ];
+    $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
+    $con-&gt;send($msg);
+}
+
+function mark($uid, $target_id, $uniacid)
+{
+//    file_put_contents('api.txt', $uid . '-' . $target_id . '-' . $uniacid . PHP_EOL, FILE_APPEND);
+    global $worker, $db;
+//    $check_user = $db-&gt;select('*')
+//        -&gt;from('ims_longbing_card_user')
+//        -&gt;where('id= :id')
+//        -&gt;bindValues(array('id'=&gt;$uid))
+//        -&gt;row();
+
+    $check_user = $db-&gt;query(&quot;SELECT * FROM `ims_longbing_card_user` WHERE id={$uid}&quot;);
+//    $check_user_tar = $db-&gt;select('*')
+//        -&gt;from('ims_longbing_card_user')
+//        -&gt;where('id= :id')
+//        -&gt;bindValues(array('id'=&gt;$target_id))
+//        -&gt;row();
+    $check_user_tar = $db-&gt;query(&quot;SELECT * FROM `ims_longbing_card_user` WHERE id={$target_id}&quot;);
+//    file_put_contents('api.txt', 1, FILE_APPEND);
+    if (empty($check_user) || empty($check_user_tar))
+        return false;
+//    file_put_contents('api.txt', 2, FILE_APPEND);
+    if ($check_user['is_staff']) {
+        $staff_id = $check_user['id'];
+        $user_id = $check_user_tar['id'];
+    } else {
+        $staff_id = $check_user_tar['id'];
+        $user_id = $check_user['id'];
+    }
+
+    $check = $db-&gt;select('*')
+        -&gt;from('ims_longbing_card_user_mark')
+        -&gt;where('user_id= :user_id AND staff_id= :staff_id')
+        -&gt;bindValues(array('user_id' =&gt; $user_id, 'staff_id' =&gt; $staff_id))
+        -&gt;row();
+    $check = $db-&gt;query(&quot;SELECT * FROM `ims_longbing_card_user_mark` WHERE user_id={$user_id} &amp;&amp; staff_id = {$staff_id}&quot;);
+
+    if (empty($check)) {
+
+//        file_put_contents('api.txt', 4, FILE_APPEND);
+        $insert_id = $db-&gt;insert('ims_longbing_card_user_mark')-&gt;cols(array(
+                'user_id' =&gt; $user_id,
+                'staff_id' =&gt; $staff_id,
+                'uniacid' =&gt; $uniacid,
+                'mark' =&gt; 1,
+                'create_time' =&gt; time(),
+                'update_time' =&gt; time())
+        )-&gt;query();
+//        file_put_contents('api.txt', '$insert_id' . $insert_id, FILE_APPEND);
+    }
+    return true;
+}
+
+
+// 运行所有的worker（其实当前只定义了一个）
+Worker::runAll();
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[PHP的接口请求后得到的是字符串，且中文是Unicode字符，并且无法转码时]]></title>
+        <id>https://blog.te.6foo.cn/post/php-de-jie-kou-qing-qiu-hou-de-dao-de-shi-zi-fu-chuan-qie-zhong-wen-shi-unicode-zi-fu-bing-qie-wu-fa-zhuan-ma-shi</id>
+        <link href="https://blog.te.6foo.cn/post/php-de-jie-kou-qing-qiu-hou-de-dao-de-shi-zi-fu-chuan-qie-zhong-wen-shi-unicode-zi-fu-bing-qie-wu-fa-zhuan-ma-shi">
+        </link>
+        <updated>2019-12-10T03:13:23.000Z</updated>
+        <content type="html"><![CDATA[<p>看看字符串头部是不是有空格，trim()去掉后可解析</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[eggjs & puppeteer 简单爬取网站]]></title>
         <id>https://blog.te.6foo.cn/post/eggjs-and-puppeteer-jian-dan-pa-qu-wang-zhan</id>
@@ -24,6 +610,8 @@
 </code></pre>
 <ol start="2">
 <li>然后出现不能用root用户运行chrome的情况，在page.launch配置中，增加<code>args: ['--no-sandbox']</code>参数</li>
+<li>对eggjs 后端发起的post请求，需要在header中加<code>X-Csrf-Token</code> ，来源是cookie，因为有内置security插件作用</li>
+<li>用完browser一定要记得关闭  不然chrome会一直跑</li>
 </ol>
 <h3 id="正文开始">正文开始</h3>
 ]]></content>
@@ -707,66 +1295,6 @@ for (var i = 0 ; i &lt; jsPathList.length ; i++) {
 <li>需要<code>相机</code>和<code>存储</code>权限</li>
 </ul>
 </li>
-</ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[H5+CSS3+JS]]></title>
-        <id>https://blog.te.6foo.cn/post/h5css3js</id>
-        <link href="https://blog.te.6foo.cn/post/h5css3js">
-        </link>
-        <updated>2019-07-18T05:09:21.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="h5">H5</h1>
-<ol>
-<li>页面嵌入iframe会页面闪烁 <code>iframe上增加frameborder = 0</code> 解决</li>
-<li>页面中body 加上<code>onselectstart=&quot;return false;&quot;</code>可以去除用户复制能力</li>
-</ol>
-<h1 id="css3">CSS3</h1>
-<h2 id="css3新特性技巧">CSS3新特性技巧</h2>
-<ol>
-<li>
-<p>flex多行多列布局，自动换行</p>
-<ul>
-<li>flex-flow: row wrap; 容器加上这个属性，元素再设定宽度</li>
-<li>box-sizing: border-box 使padding不影响最终宽度</li>
-<li>图片超出宽度，内容居中可以用flex，column布局，justcontent和alignitems设置为center（未测试，根据文字如果要居中两头截断猜测）</li>
-</ul>
-</li>
-</ol>
-<h2 id="ie浏览器适配">IE浏览器适配</h2>
-<ol>
-<li>
-<p>IE浏览器中的<code>zoom</code>属性, 会将所有的边距<code>right left top bottom margin padding</code>不进行缩放，元素缩放后，占位还是<code>zoom： 1</code>，显示内容只占据占位区域的左上角位置。造成与chrome不统一的问题</p>
-</li>
-<li>
-<p>ie中inline-block不对其：<code>字体设置成微软雅黑</code></p>
-</li>
-<li>
-<p>ie中不兼容不标准的时间字符串，要用<code>yyyy/mm/dd hh:mm:ss</code> 并且hh不能大于24小时，月份不能大于12之类</p>
-<ul>
-<li>echats 使用了时间出现兼容问题可以考虑这一点</li>
-</ul>
-</li>
-</ol>
-<h1 id="js">JS</h1>
-<ol>
-<li>
-<p>document初始化时通过on绑定到元素上的事件，在元素重新生成时会销毁，需要重新绑定事件</p>
-</li>
-<li>
-<p>因为浏览器安全策略问题，<code>input[type=file]</code>不能通过js获取文件进行上传，需要将文件转blob，通过ajax进行上传</p>
-</li>
-</ol>
-<h1 id="jquery">JQuery</h1>
-<ol>
-<li><code>JQuery-editable-select</code>插件，直接清空<code>select</code>的<code>val</code>可以清空值，但是选项列表保留了筛选过的状态，需要手动还原。<code>$().next('.es-list')</code>获取到下级<code>ul</code>用<code>.removeClass,addClass,removeAttr('style')</code>修正</li>
-</ol>
-<h1 id="通过bower包管理器引入的文件">通过bower包管理器引入的文件</h1>
-<h2 id="整体使用方式类似npm">整体使用方式类似npm</h2>
-<ol>
-<li><code>bower init</code>创建管理文件</li>
-<li><code>bower install xxx --save</code> 安装插件并保存到管理文件中</li>
-<li><code>bower install</code> 安装管理文件里所有的包</li>
 </ol>
 ]]></content>
     </entry>
