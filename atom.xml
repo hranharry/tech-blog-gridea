@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.te.6foo.cn</id>
     <title>Idea Touch</title>
-    <updated>2020-01-05T06:02:30.318Z</updated>
+    <updated>2020-01-14T03:43:38.801Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.te.6foo.cn"/>
     <link rel="self" href="https://blog.te.6foo.cn/atom.xml"/>
@@ -10,6 +10,124 @@
     <logo>https://blog.te.6foo.cn/images/avatar.png</logo>
     <icon>https://blog.te.6foo.cn/favicon.ico</icon>
     <rights>All rights reserved 2020, Idea Touch</rights>
+    <entry>
+        <title type="html"><![CDATA[vue项目的卡白屏优化]]></title>
+        <id>https://blog.te.6foo.cn/post/vue-xiang-mu-de-qia-bai-ping-you-hua</id>
+        <link href="https://blog.te.6foo.cn/post/vue-xiang-mu-de-qia-bai-ping-you-hua">
+        </link>
+        <updated>2020-01-14T03:04:37.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="填坑原因">填坑原因</h1>
+<p>一个基于vue vant wexin开发的项目，首屏加载居然有接近3m，网不好就卡白屏了，不能忍</p>
+<h1 id="方案">方案</h1>
+<ol>
+<li>开启gzip</li>
+<li>路由懒加载</li>
+<li>ui组件按需加载</li>
+<li>部分插件通过cdn引用</li>
+<li>首屏html增加动画效果，减少焦虑感</li>
+</ol>
+<h1 id="实施">实施</h1>
+<h2 id="1开启gzip">1.开启gzip</h2>
+<p>这个比较简单，nginx配置下就行，配置文件最后}前添加</p>
+<pre><code># 开启gzip
+    gzip on;
+
+    # 启用gzip压缩的最小文件，小于设置值的文件将不会压缩
+    gzip_min_length 1k;
+
+    # gzip 压缩级别，1-9，数字越大压缩的越好，也越占用CPU时间，后面会有详细说明
+    gzip_comp_level 5;
+
+    # 进行压缩的文件类型。javascript有多种形式。其中的值可以在 mime.types 文件中找到。
+    gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png application/vnd.ms-fontobject font/ttf font/opentype font/x-woff image/svg+xml;
+
+    # 是否在http header中添加Vary: Accept-Encoding，建议开启
+    gzip_vary on;
+
+    # 禁用IE 6 gzip
+    gzip_disable &quot;MSIE [1-6]\.&quot;;
+
+    # 设置压缩所需要的缓冲区大小     
+    gzip_buffers 32 4k;
+
+    # 设置gzip压缩针对的HTTP协议版本
+    gzip_http_version 1.0;
+</code></pre>
+<h2 id="2路由懒加载">2.路由懒加载</h2>
+<ul>
+<li>在<code>babel.config.js</code>中配置plugins中增加如下内容（npm install -D-S  @babel/syntax-dynamic-import）后，可以识别router.js中的import按需加载,<code>component: () =&gt; import(/* webpackChunkName:'page404' */ './views/404.vue'),</code>, <code>/* webpackChunkName:'page404' */</code>魔法注释可以定义打包后产出的chunk文件名<pre><code>  &quot;plugins&quot;: [
+      [
+      &quot;@babel/syntax-dynamic-import&quot;
+      ]
+  ]
+</code></pre>
+<h2 id="3ui组件按需加载">3.UI组件按需加载</h2>
+<ul>
+<li>vant提供按需加载能力，在babel中添加如下代码，即可在组件中<code>import { Button } from 'vant'</code>,<code>components: { vanButton: Buttom }</code></li>
+</ul>
+<pre><code>&quot;plugins&quot;: [
+  ['import', {
+    libraryName: 'vant',
+    libraryDirectory: 'es',
+    style: true
+  }, 'vant']
+]
+</code></pre>
+<ul>
+<li>lazyload, toast, dialog等有函数类型的组件需要全局引入并<code>Vue.use()</code>否则组件模式会有坑</li>
+</ul>
+<h2 id="4插件通过cdn引用">4.插件通过cdn引用</h2>
+<ul>
+<li>在<code>index.html</code>中引入cdn文件</li>
+</ul>
+<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/vant@2.4/lib/index.css&quot;&gt;
+  &lt;!-- CDN --&gt;
+  &lt;script src=&quot;https://cdn.bootcss.com/vue-router/3.1.3/vue-router.min.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdn.bootcss.com/vue/2.6.10/vue.runtime.min.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdn.jsdelivr.net/npm/vant@2.4/lib/vant.min.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<ul>
+<li>在<code>vue.config.js</code>中设定production模式不打包对应的插件</li>
+</ul>
+<pre><code>configureWebpack: config =&gt; {
+  if (process.env.NODE_ENV === &quot;production&quot;) {
+    config.externals = {
+      'vue': 'Vue',
+      'vue-router': 'VueRouter',
+      'moment': 'moment',
+      'vant': 'Vant'
+    }
+  }
+}
+</code></pre>
+<h2 id="5白屏增内容">5.白屏增内容</h2>
+<ul>
+<li>修改标题为人性化语言</li>
+<li>在<code>&lt;div id=&quot;app&quot;&gt;&lt;/div&gt;</code>中添加加载提示内容，如loading图等<br>
+<img src="https://blog.te.6foo.cn/post-images/1578973111183.gif" alt="" loading="lazy"></li>
+</ul>
+</li>
+</ul>
+<h1 id="如何查出是哪些包撑大了vendors文件造成首屏慢">如何查出是哪些包撑大了vendors文件造成首屏慢</h1>
+<p>使用<code>webpack-bundle-analyzer</code>进行分析</p>
+<ul>
+<li><code>npm install -D webpack-bundle-analyzer</code>，在<code>vue.config.js</code>中配置</li>
+</ul>
+<pre><code>chainWebpack: (config) =&gt; {
+    if (process.env.npm_config_report) {
+      config
+        .plugin('webpack-bundle-analyzer')
+        .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+    }
+  }
+</code></pre>
+<ul>
+<li>在<code>package.json</code>中添加scripts <code>&quot;analyz&quot;: &quot;npm_config_report=true npm run build&quot;</code>，运行后会自动打开浏览器展示各个包大小<br>
+<img src="https://blog.te.6foo.cn/post-images/1578973324739.jpg" alt="" loading="lazy"></li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[PHP的workderman部署socket服务，龙兵5.99.77学习研究]]></title>
         <id>https://blog.te.6foo.cn/post/php-de-workderman-bu-shu-socket-fu-wu</id>
@@ -1237,65 +1355,6 @@ for (var i = 0 ; i &lt; jsPathList.length ; i++) {
 <pre><code>&lt;img [src]=&quot;item | fileToBase64 | async&quot; alt=&quot;&quot;&gt;
 加了 `| async` fileToBase64就可以使用promise/observable
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Hybird]]></title>
-        <id>https://blog.te.6foo.cn/post/hybird</id>
-        <link href="https://blog.te.6foo.cn/post/hybird">
-        </link>
-        <updated>2019-07-18T05:27:37.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="android开发混合项目">Android开发混合项目</h1>
-<h2 id="0x00-加入一个activity">0x00 加入一个<code>Activity</code></h2>
-<ol>
-<li>将<code>package</code>拷贝到<code>java</code>目录， 在<code>AndroidMainfest</code>中将<code>package</code>设置成<code>主activity的包名</code>，加入要导入项目的<code>activity</code>标签，<code>name</code>使用<code>java</code>下的全路径，<code>intent-filter</code>标签，标志着是否生成图标</li>
-<li><code>build.gradle</code>中<code>implementation</code>包的版本不同，调整各个页面的包继承，比如有<code>v7 MainActivity</code>继承于<code>AppCompatActivity</code>，没有可能就要继承于<code>Activity（Program type already present: android.support.v4.app.BackStackRecord$Op）</code></li>
-<li><code>R变量不存在</code>，因为AndroidMainfest的package发生变化，引用的页面中需要重新导入正确包路径</li>
-</ol>
-<h2 id="0x01-引入一个moudle">0x01 引入一个<code>Moudle</code></h2>
-<ol>
-<li>将要引入的<code>Module</code>复制到项目对应目录，在<code>Settings.gradle</code>中添加<code>该Module</code>，在项目属性（SDK和AVD中间图标）中将<code>新增module</code>引入<code>对应的module</code>，如<code>CordovaLib</code>引入<code>Ionic所在的Module</code></li>
-<li>所有<code>build.gradle</code>中对应的 <strong>最小</strong> sdk，<code>targetSdkVersion</code>都应该 <strong>相同</strong></li>
-<li><code>module</code>中的<code>apply plugin</code>最后应该是<code>library</code>，同时应该删除<code>applicationId</code></li>
-<li><code>Cordova</code>：需要版本库为<code>16</code>以上，项目中所有最小值都应该是<code>16</code></li>
-</ol>
-<h2 id="0x02嵌入vue项目">0x02嵌入Vue项目</h2>
-<ol>
-<li>
-<p>webview中通过引入文件引入vue项目的，必须要写到index.html，这个时候的路由方式是 <code>index.html#/page</code>。<strong>去掉#前面的/</strong></p>
-</li>
-<li>
-<p>vue组件方法暴露给webview外部的native调用 <code>生命周期mounted中定义window.myfunc = this.myfunc</code></p>
-</li>
-<li>
-<p>嵌入webview的录音功能</p>
-<ul>
-<li><s>网页可以使用的recorder-js，在webview中无法使用，因为无权限</s></li>
-<li>在native中定义函数实现录音方法，通过js在vue中调用</li>
-</ul>
-</li>
-<li>
-<p>嵌入webview的audio音频播放</p>
-<ul>
-<li>方法1
-<blockquote>
-<p>webview中引入音频，必须要点击audio或者父级穿透到audio，才能调用audio的play方法。</p>
-</blockquote>
-</li>
-<li>方法2
-<blockquote>
-<p>或者在native的webview配置中setMediaPlaybackRequiresUserGesture(boolean require)（默认为true），设置WebView是否需要用户手势才能播放媒体。设置方法未测试）</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li>
-<p>vue项目拍照权限</p>
-<ul>
-<li>需要<code>相机</code>和<code>存储</code>权限</li>
-</ul>
-</li>
-</ol>
 ]]></content>
     </entry>
 </feed>

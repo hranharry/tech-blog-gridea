@@ -1,0 +1,318 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>vue项目的卡白屏优化 | Idea Touch</title>
+<meta name="description" content="填不填的都是坑" />
+<link rel="shortcut icon" href="https://blog.te.6foo.cn/favicon.ico?v=1578973410256">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://blog.te.6foo.cn/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://blog.te.6foo.cn">
+  <img class="avatar" src="https://blog.te.6foo.cn/images/avatar.png?v=1578973410256" alt="">
+  </a>
+  <h1 class="site-title">
+    Idea Touch
+  </h1>
+  <p class="site-description">
+    填不填的都是坑
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="https://blog.te.6foo.cn" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="https://blog.te.6foo.cn/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="https://blog.te.6foo.cn/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="https://blog.te.6foo.cn/post/about/" class="menu">
+          关于
+        </a>
+      
+    
+      
+        <a href="https://blog.te.6foo.cn/post/hello-gridea/" class="menu">
+          demo
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              vue项目的卡白屏优化
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-01-14
+              </span>
+              <span>
+                4 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="填坑原因">填坑原因</h1>
+<p>一个基于vue vant wexin开发的项目，首屏加载居然有接近3m，网不好就卡白屏了，不能忍</p>
+<h1 id="方案">方案</h1>
+<ol>
+<li>开启gzip</li>
+<li>路由懒加载</li>
+<li>ui组件按需加载</li>
+<li>部分插件通过cdn引用</li>
+<li>首屏html增加动画效果，减少焦虑感</li>
+</ol>
+<h1 id="实施">实施</h1>
+<h2 id="1开启gzip">1.开启gzip</h2>
+<p>这个比较简单，nginx配置下就行，配置文件最后}前添加</p>
+<pre><code># 开启gzip
+    gzip on;
+
+    # 启用gzip压缩的最小文件，小于设置值的文件将不会压缩
+    gzip_min_length 1k;
+
+    # gzip 压缩级别，1-9，数字越大压缩的越好，也越占用CPU时间，后面会有详细说明
+    gzip_comp_level 5;
+
+    # 进行压缩的文件类型。javascript有多种形式。其中的值可以在 mime.types 文件中找到。
+    gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png application/vnd.ms-fontobject font/ttf font/opentype font/x-woff image/svg+xml;
+
+    # 是否在http header中添加Vary: Accept-Encoding，建议开启
+    gzip_vary on;
+
+    # 禁用IE 6 gzip
+    gzip_disable &quot;MSIE [1-6]\.&quot;;
+
+    # 设置压缩所需要的缓冲区大小     
+    gzip_buffers 32 4k;
+
+    # 设置gzip压缩针对的HTTP协议版本
+    gzip_http_version 1.0;
+</code></pre>
+<h2 id="2路由懒加载">2.路由懒加载</h2>
+<ul>
+<li>在<code>babel.config.js</code>中配置plugins中增加如下内容（npm install -D-S  @babel/syntax-dynamic-import）后，可以识别router.js中的import按需加载,<code>component: () =&gt; import(/* webpackChunkName:'page404' */ './views/404.vue'),</code>, <code>/* webpackChunkName:'page404' */</code>魔法注释可以定义打包后产出的chunk文件名<pre><code>  &quot;plugins&quot;: [
+      [
+      &quot;@babel/syntax-dynamic-import&quot;
+      ]
+  ]
+</code></pre>
+<h2 id="3ui组件按需加载">3.UI组件按需加载</h2>
+<ul>
+<li>vant提供按需加载能力，在babel中添加如下代码，即可在组件中<code>import { Button } from 'vant'</code>,<code>components: { vanButton: Buttom }</code></li>
+</ul>
+<pre><code>&quot;plugins&quot;: [
+  ['import', {
+    libraryName: 'vant',
+    libraryDirectory: 'es',
+    style: true
+  }, 'vant']
+]
+</code></pre>
+<ul>
+<li>lazyload, toast, dialog等有函数类型的组件需要全局引入并<code>Vue.use()</code>否则组件模式会有坑</li>
+</ul>
+<h2 id="4插件通过cdn引用">4.插件通过cdn引用</h2>
+<ul>
+<li>在<code>index.html</code>中引入cdn文件</li>
+</ul>
+<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/vant@2.4/lib/index.css&quot;&gt;
+  &lt;!-- CDN --&gt;
+  &lt;script src=&quot;https://cdn.bootcss.com/vue-router/3.1.3/vue-router.min.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdn.bootcss.com/vue/2.6.10/vue.runtime.min.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdn.jsdelivr.net/npm/vant@2.4/lib/vant.min.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<ul>
+<li>在<code>vue.config.js</code>中设定production模式不打包对应的插件</li>
+</ul>
+<pre><code>configureWebpack: config =&gt; {
+  if (process.env.NODE_ENV === &quot;production&quot;) {
+    config.externals = {
+      'vue': 'Vue',
+      'vue-router': 'VueRouter',
+      'moment': 'moment',
+      'vant': 'Vant'
+    }
+  }
+}
+</code></pre>
+<h2 id="5白屏增内容">5.白屏增内容</h2>
+<ul>
+<li>修改标题为人性化语言</li>
+<li>在<code>&lt;div id=&quot;app&quot;&gt;&lt;/div&gt;</code>中添加加载提示内容，如loading图等<br>
+<img src="https://blog.te.6foo.cn/post-images/1578973111183.gif" alt="" loading="lazy"></li>
+</ul>
+</li>
+</ul>
+<h1 id="如何查出是哪些包撑大了vendors文件造成首屏慢">如何查出是哪些包撑大了vendors文件造成首屏慢</h1>
+<p>使用<code>webpack-bundle-analyzer</code>进行分析</p>
+<ul>
+<li><code>npm install -D webpack-bundle-analyzer</code>，在<code>vue.config.js</code>中配置</li>
+</ul>
+<pre><code>chainWebpack: (config) =&gt; {
+    if (process.env.npm_config_report) {
+      config
+        .plugin('webpack-bundle-analyzer')
+        .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+    }
+  }
+</code></pre>
+<ul>
+<li>在<code>package.json</code>中添加scripts <code>&quot;analyz&quot;: &quot;npm_config_report=true npm run build&quot;</code>，运行后会自动打开浏览器展示各个包大小<br>
+<img src="https://blog.te.6foo.cn/post-images/1578973324739.jpg" alt="" loading="lazy"></li>
+</ul>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#%E5%A1%AB%E5%9D%91%E5%8E%9F%E5%9B%A0">填坑原因</a></li>
+<li><a href="#%E6%96%B9%E6%A1%88">方案</a></li>
+<li><a href="#%E5%AE%9E%E6%96%BD">实施</a>
+<ul>
+<li><a href="#1%E5%BC%80%E5%90%AFgzip">1.开启gzip</a></li>
+<li><a href="#2%E8%B7%AF%E7%94%B1%E6%87%92%E5%8A%A0%E8%BD%BD">2.路由懒加载</a></li>
+<li><a href="#3ui%E7%BB%84%E4%BB%B6%E6%8C%89%E9%9C%80%E5%8A%A0%E8%BD%BD">3.UI组件按需加载</a></li>
+<li><a href="#4%E6%8F%92%E4%BB%B6%E9%80%9A%E8%BF%87cdn%E5%BC%95%E7%94%A8">4.插件通过cdn引用</a></li>
+<li><a href="#5%E7%99%BD%E5%B1%8F%E5%A2%9E%E5%86%85%E5%AE%B9">5.白屏增内容</a></li>
+</ul>
+</li>
+<li><a href="#%E5%A6%82%E4%BD%95%E6%9F%A5%E5%87%BA%E6%98%AF%E5%93%AA%E4%BA%9B%E5%8C%85%E6%92%91%E5%A4%A7%E4%BA%86vendors%E6%96%87%E4%BB%B6%E9%80%A0%E6%88%90%E9%A6%96%E5%B1%8F%E6%85%A2">如何查出是哪些包撑大了vendors文件造成首屏慢</a></li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.te.6foo.cn/post/php-de-workderman-bu-shu-socket-fu-wu">
+              <h3 class="post-title">
+                PHP的workderman部署socket服务，龙兵5.99.77学习研究
+              </h3>
+            </a>
+          </div>
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: '5859545a45c7e0b81747',
+    clientSecret: '7c07366e986833f334f551e06019575faefd66c8',
+    repo: 'tech-blog-gridea',
+    owner: 'hranharry',
+    admin: ['hranharry'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  &copy; copyright by <a href="https://www.6foo.com" target="_blank">六斧伙计</a> | 
+  <a class="rss" href="https://blog.te.6foo.cn/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+
+  let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+  // This should probably be throttled.
+  // Especially because it triggers during smooth scrolling.
+  // https://lodash.com/docs/4.17.10#throttle
+  // You could do like...
+  // window.addEventListener("scroll", () => {
+  //    _.throttle(doThatStuff, 100);
+  // });
+  // Only not doing it here to keep this Pen dependency-free.
+
+  window.addEventListener("scroll", event => {
+    let fromTop = window.scrollY;
+
+    mainNavLinks.forEach((link, index) => {
+      let section = document.getElementById(decodeURI(link.hash).substring(1));
+      let nextSection = null
+      if (mainNavLinks[index + 1]) {
+        nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+      }
+      console.log('section.offsetHeight', section.offsetHeight);
+      if (section.offsetTop <= fromTop) {
+        if (nextSection) {
+          if (nextSection.offsetTop > fromTop) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");    
+          }
+        } else {
+          link.classList.add("current");
+        }
+      } else {
+        link.classList.remove("current");
+      }
+    });
+  });
+
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>
