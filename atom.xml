@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.te.6foo.cn</id>
     <title>Idea Touch</title>
-    <updated>2020-01-14T05:48:18.774Z</updated>
+    <updated>2020-01-14T05:49:45.388Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.te.6foo.cn"/>
     <link rel="self" href="https://blog.te.6foo.cn/atom.xml"/>
@@ -55,14 +55,14 @@
 </code></pre>
 <h2 id="2路由懒加载">2.路由懒加载</h2>
 <ul>
-<li>在<code>babel.config.js</code>中配置plugins中增加如下内容（npm install -D-S  @babel/syntax-dynamic-import）后，可以识别router.js中的import按需加载,<code>component: () =&gt; import(/* webpackChunkName:'page404' */ './views/404.vue'),</code>, <code>/* webpackChunkName:'page404' */</code>魔法注释可以定义打包后产出的chunk文件名<pre><code>  &quot;plugins&quot;: [
-      [
-      &quot;@babel/syntax-dynamic-import&quot;
-      ]
-  ]
-</code></pre>
-</li>
+<li>在<code>babel.config.js</code>中配置plugins中增加如下内容（npm install -D-S  @babel/syntax-dynamic-import）后，可以识别router.js中的import按需加载,<code>component: () =&gt; import(/* webpackChunkName:'page404' */ './views/404.vue'),</code>, <code>/* webpackChunkName:'page404' */</code>魔法注释可以定义打包后产出的chunk文件名</li>
 </ul>
+<pre><code>    &quot;plugins&quot;: [
+        [
+        &quot;@babel/syntax-dynamic-import&quot;
+        ]
+    ]
+</code></pre>
 <h2 id="3ui组件按需加载">3.UI组件按需加载</h2>
 <ul>
 <li>vant提供按需加载能力，在babel中添加如下代码，即可在组件中<code>import { Button } from 'vant'</code>,<code>components: { vanButton: Buttom }</code></li>
