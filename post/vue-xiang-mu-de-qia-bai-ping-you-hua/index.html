@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>vue项目的卡白屏优化 | Idea Touch</title>
 <meta name="description" content="填不填的都是坑" />
-<link rel="shortcut icon" href="https://blog.te.6foo.cn/favicon.ico?v=1578973410256">
+<link rel="shortcut icon" href="https://blog.te.6foo.cn/favicon.ico?v=1578980895610">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://blog.te.6foo.cn/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://blog.te.6foo.cn">
-  <img class="avatar" src="https://blog.te.6foo.cn/images/avatar.png?v=1578973410256" alt="">
+  <img class="avatar" src="https://blog.te.6foo.cn/images/avatar.png?v=1578980895610" alt="">
   </a>
   <h1 class="site-title">
     Idea Touch
@@ -138,17 +138,19 @@
       ]
   ]
 </code></pre>
+</li>
+</ul>
 <h2 id="3ui组件按需加载">3.UI组件按需加载</h2>
 <ul>
 <li>vant提供按需加载能力，在babel中添加如下代码，即可在组件中<code>import { Button } from 'vant'</code>,<code>components: { vanButton: Buttom }</code></li>
 </ul>
-<pre><code>&quot;plugins&quot;: [
-  ['import', {
-    libraryName: 'vant',
-    libraryDirectory: 'es',
-    style: true
-  }, 'vant']
-]
+<pre><code>  &quot;plugins&quot;: [
+    ['import', {
+      libraryName: 'vant',
+      libraryDirectory: 'es',
+      style: true
+    }, 'vant']
+  ]
 </code></pre>
 <ul>
 <li>lazyload, toast, dialog等有函数类型的组件需要全局引入并<code>Vue.use()</code>否则组件模式会有坑</li>
@@ -157,26 +159,26 @@
 <ul>
 <li>在<code>index.html</code>中引入cdn文件</li>
 </ul>
-<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/vant@2.4/lib/index.css&quot;&gt;
-  &lt;!-- CDN --&gt;
-  &lt;script src=&quot;https://cdn.bootcss.com/vue-router/3.1.3/vue-router.min.js&quot;&gt;&lt;/script&gt;
-  &lt;script src=&quot;https://cdn.bootcss.com/vue/2.6.10/vue.runtime.min.js&quot;&gt;&lt;/script&gt;
-  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js&quot;&gt;&lt;/script&gt;
-  &lt;script src=&quot;https://cdn.jsdelivr.net/npm/vant@2.4/lib/vant.min.js&quot;&gt;&lt;/script&gt;
+<pre><code>  &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/vant@2.4/lib/index.css&quot;&gt;
+    &lt;!-- CDN --&gt;
+    &lt;script src=&quot;https://cdn.bootcss.com/vue-router/3.1.3/vue-router.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://cdn.bootcss.com/vue/2.6.10/vue.runtime.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/vant@2.4/lib/vant.min.js&quot;&gt;&lt;/script&gt;
 </code></pre>
 <ul>
 <li>在<code>vue.config.js</code>中设定production模式不打包对应的插件</li>
 </ul>
-<pre><code>configureWebpack: config =&gt; {
-  if (process.env.NODE_ENV === &quot;production&quot;) {
-    config.externals = {
-      'vue': 'Vue',
-      'vue-router': 'VueRouter',
-      'moment': 'moment',
-      'vant': 'Vant'
+<pre><code>  configureWebpack: config =&gt; {
+    if (process.env.NODE_ENV === &quot;production&quot;) {
+      config.externals = {
+        'vue': 'Vue',
+        'vue-router': 'VueRouter',
+        'moment': 'moment',
+        'vant': 'Vant'
+      }
     }
   }
-}
 </code></pre>
 <h2 id="5白屏增内容">5.白屏增内容</h2>
 <ul>
@@ -184,9 +186,7 @@
 <li>在<code>&lt;div id=&quot;app&quot;&gt;&lt;/div&gt;</code>中添加加载提示内容，如loading图等<br>
 <img src="https://blog.te.6foo.cn/post-images/1578973111183.gif" alt="" loading="lazy"></li>
 </ul>
-</li>
-</ul>
-<h1 id="如何查出是哪些包撑大了vendors文件造成首屏慢">如何查出是哪些包撑大了vendors文件造成首屏慢</h1>
+<h1 id="如何查出是哪些包撑大了vendors文件造成首屏慢">*如何查出是哪些包撑大了vendors文件造成首屏慢</h1>
 <p>使用<code>webpack-bundle-analyzer</code>进行分析</p>
 <ul>
 <li><code>npm install -D webpack-bundle-analyzer</code>，在<code>vue.config.js</code>中配置</li>
@@ -218,7 +218,7 @@
 <li><a href="#5%E7%99%BD%E5%B1%8F%E5%A2%9E%E5%86%85%E5%AE%B9">5.白屏增内容</a></li>
 </ul>
 </li>
-<li><a href="#%E5%A6%82%E4%BD%95%E6%9F%A5%E5%87%BA%E6%98%AF%E5%93%AA%E4%BA%9B%E5%8C%85%E6%92%91%E5%A4%A7%E4%BA%86vendors%E6%96%87%E4%BB%B6%E9%80%A0%E6%88%90%E9%A6%96%E5%B1%8F%E6%85%A2">如何查出是哪些包撑大了vendors文件造成首屏慢</a></li>
+<li><a href="#%E5%A6%82%E4%BD%95%E6%9F%A5%E5%87%BA%E6%98%AF%E5%93%AA%E4%BA%9B%E5%8C%85%E6%92%91%E5%A4%A7%E4%BA%86vendors%E6%96%87%E4%BB%B6%E9%80%A0%E6%88%90%E9%A6%96%E5%B1%8F%E6%85%A2">*如何查出是哪些包撑大了vendors文件造成首屏慢</a></li>
 </ul>
 
               </div>
